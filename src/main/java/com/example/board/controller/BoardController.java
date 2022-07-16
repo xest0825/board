@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Slf4j
@@ -14,9 +15,26 @@ import java.util.Date;
 public class BoardController {
 
     @GetMapping("/items")
-    public ModelAndView goIntroducingPage() {
+    public ModelAndView goItems(HttpServletRequest req) {
         ModelAndView mv = new ModelAndView("items");
-        mv.addObject("serverTime", "2022-07-16");
+        String id = req.getParameter("id");
+        log.info("id : " + id);
+        mv.addObject("serverTime", "2022-07-16 15:00:00");
+        mv.addObject("id", id);
+        return mv;
+    }
+
+    @GetMapping("/items/list")
+    public ModelAndView goItemsList() {
+        ModelAndView mv = new ModelAndView("list/itemsList");
+        mv.addObject("serverTime", "2022-07-16 15:00:00");
+        return mv;
+    }
+
+    @GetMapping("/items2")
+    public ModelAndView goItems2() {
+        ModelAndView mv = new ModelAndView("items2");
+        mv.addObject("serverTime", "2022-07-16 15:20:00");
         return mv;
     }
 
