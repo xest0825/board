@@ -24,4 +24,10 @@
         <include refid="getItemListSql" />
     </select>
 
+    <insert id="insertEmp" parameterType="Hmap">
+        INSERT INTO tbcn_emp (
+                              ''
+        )
+    </insert>
+
 </mapper>

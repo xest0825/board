@@ -1,6 +1,4 @@
 <html xmlns:tm="http://www.thymeleaf.org">
-<html xmlns:th="http://www.thymeleaf.org">
-<html>
 <title>Home</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script src="/js/jquery-3.6.0.min.js"></script>
@@ -12,27 +10,46 @@
 </style>
 <script>
     $(document).ready(function(){
-        console.log('home');
-        $('#btn_list').on('click', function(){
+        $('#searchBtn').on('click', function(){
+            console.log('search');
+
             $.get('/boards', function(data){
                 console.log(data);
+                drawTable(data);
             });
+            /*
+            $.ajax({
+                url : '/boards'
+                , type : 'GET'
+                , data : {id : "3", gender : "M"}
+                , contentType : 'application/json; charset=UTF-8'
+                , success : function(data){
+                    console.log(data);
+
+                }
+                , error : function(req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+             */
         });
 
-        $('#btn_read').on('click', function(){
-            $.get('/boards/' + $('#inp_bd_no').val(), function(data){
-                console.log(data);
-            });
+        $('#insertBtn').on('click', function(){
+            console.log('insert');
+            var title = '';
+            var contents = '';
+            var author = '';
+            title = $('#title').val();
+            contents = $('#contents').val();
+            author = $('#author').val();
+            console.log(title + ', ' + contents + ', ' + author);
 
-        });
+            var boardData = {};
+            boardData['title'] = title;
+            boardData['contents'] = contents;
+            boardData['author'] = author;
+            console.log(boardData);
 
-        $('#btn_post').on('click', function(){
-
-            var boardData = {
-                title : $('#title').val()
-                , content : $('#content').val()
-                , author_nm : $('#author_nm').val()
-            }
 
             $.ajax({
                 url : '/boards'
@@ -47,70 +64,37 @@
                 }
             });
 
-        });
-
-        $('#btn_modify').on('click', function(){
-
-            var boardData = {
-                title : $('#title').val()
-                , content : $('#content').val()
-                , author_nm : $('#author_nm').val()
-                , bd_no : '1'
-            }
-
-            $.ajax({
-                url : '/boards'
-                , type : 'PUT'
-                , data : JSON.stringify(boardData)
-                , contentType : 'application/json; charset=UTF-8'
-                , success : function(data){
-                    console.log(data);
-                }
-                , error : function(req, status, error) {
-                    console.log(req + status + error);
-                }
-            });
 
         });
 
-        $('#btn_delete').on('click', function(){
-            $.ajax({
-                url : '/boards/' + $('#inp_bd_no').val()
-                , type : 'DELETE'
-                , contentType : 'application/json; charset=UTF-8'
-                , success : function(data){
-                    console.log(data);
-                }
-                , error : function(req, status, error) {
-                    console.log(req + status + error);
-                }
-            });
-
-        });
     });
+
+    function drawTable(data){
+
+        var html = '';
+        for (i = 0; i< data.length; i++){
+            var item = {};
+            item = data[i];
+           console.log(item);
+
+           html += '<tr>';
+           html += '<td text-align="right" style="color:red;">' + item['title']+'<td>'; // item.title
+           html += '<td>' + item['contents']+'<td>';
+           html += '<td>' + item['author']+'<td>';
+           html += '</tr>';
+           $('#tb1').html(html);
+        }
+
+    }
 </script>
 <body>
-<h1>Hello World</h1>
-<p th:text="${serverTime}">  The time on the server is ${serverTime}</p>
-<p th:text="${id}">${id}}</p>
-
-
-<table>
-    <tr>
-        <th>순번</th>
-        <th>제목</th>
-        <th>내용</th>
-        <th>작성자</th>
-        <th>작성일시</th>
-    </tr>
-    <tr>
-        <td>1</td>
-        <td>향수</td>
-        <td>넓은 벌판</td>
-        <td>최윤식</td>
-        <td>2022-07-16</td>
-    </tr>
-
+<button id="searchBtn">조회</button>
+<table id="tb1">
 </table>
+<br>
+<input id="title" type="text">
+<input id="contents" type="text">
+<input id="author" type="text">
+<button id="insertBtn">입력</button>
 </body>
 </html>

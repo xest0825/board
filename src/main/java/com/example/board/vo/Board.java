@@ -11,7 +11,7 @@ public class Board {
 
     String seq;
     String title;
-    String content;
+    String contents;
     String author;
     String reg_dtm;
 }
