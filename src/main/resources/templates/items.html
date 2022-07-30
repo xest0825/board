@@ -3,10 +3,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script src="/js/jquery-3.6.0.min.js"></script>
 <style>
-    table {border:solid 1px black; border-collapse: collapse}
-    tr {border:solid 1px black}
-    th {border:solid 1px black}
-    td {border:solid 1px black}
+    table {border:solid 1px black; border-collapse: collapse; width: 100%;}
+    tr {border:solid 1px black; border-collapse: collapse}
+    th {border:solid 1px black; border-collapse: collapse}
+    td {border:solid 1px black; border-collapse: collapse; padding:5px;}
 </style>
 <script>
     $(document).ready(function(){
@@ -113,23 +113,40 @@
         for (let i = 0; i< data.length; i++){
             let item = {};
             item = data[i];
-           console.log(item);
+            console.log(item);
 
-           html += '<tr>';
-           html += '<td>' + item['seq']+'<td>';
-           html += '<td>' + item['title']+'<td>';
-           html += '<td>' + item['contents']+'<td>';
-           html += '<td>' + item['author']+'<td>';
-           html += '<td>' + item['reg_dtm']+'<td>';
-           html += '</tr>';
-           $('#tb1').html(html);
+            html += '<tr>';
+            html += ' <td>' + item['seq']+'</td>';
+            html += ' <td>' + item['title']+'</td>';
+            html += ' <td>' + item['contents']+'</td>';
+            html += ' <td>' + item['author']+'</td>';
+            html += ' <td>' + item['reg_dtm']+'</td>';
+            html += '</tr>';
+            $('#tb1').html(html);
         }
 
     }
 </script>
 <body>
     <button id="searchBtn">조회</button>
-    <table id="tb1">
+    <table>
+        <colgroup>
+            <col style="width:10%;"/>
+            <col style="width:20%;"/>
+            <col style="width:50%;"/>
+            <col style="width:10%;"/>
+            <col style="width:10%;"/>
+        </colgroup>
+        <thead>
+            <th>순번</th>
+            <th>제목</th>
+            <th>내용</th>
+            <th>작성자</th>
+            <th>작성일시</th>
+        </thead>
+        <tbody id="tb1">
+
+        </tbody>
     </table>
     <br>
 

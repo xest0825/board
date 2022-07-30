@@ -13,8 +13,8 @@
                , tb1.title
                , tb1.contents
                , tb1.author
-               , tb1.reg_dtm
-               , tb1.up_dtm
+               , DATE_FORMAT(tb1.reg_dtm, '%Y-%m-%d %H:%i:%s') reg_dtm
+               , DATE_FORMAT(tb1.up_dtm, '%Y-%m-%d %H:%i:%s') up_dtm
             FROM tb_item  tb1
         <where>
             <if test='@com.example.board.util.CommonUtil@isNotEmpty(seq)'>
