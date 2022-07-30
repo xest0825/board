@@ -3,10 +3,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script src="/js/jquery-3.6.0.min.js"></script>
 <style>
-    table {border:solid 1px black; border-collapse: collapse; width: 100%;}
+    table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
     tr {border:solid 1px black; border-collapse: collapse}
-    th {border:solid 1px black; border-collapse: collapse}
-    td {border:solid 1px black; border-collapse: collapse; padding:5px;}
+    th {border:dotted 1px black; border-collapse: collapse}
+    td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
 </style>
 <script>
     $(document).ready(function(){
@@ -129,15 +129,16 @@
 </script>
 <body>
     <button id="searchBtn">조회</button>
+
     <table>
         <colgroup>
             <col style="width:10%;"/>
             <col style="width:20%;"/>
-            <col style="width:50%;"/>
+            <col style="width:45%;"/>
             <col style="width:10%;"/>
-            <col style="width:10%;"/>
+            <col style="width:15%;"/>
         </colgroup>
-        <thead>
+        <thead style="background-color:lightsteelblue;">
             <th>순번</th>
             <th>제목</th>
             <th>내용</th>
@@ -148,12 +149,12 @@
 
         </tbody>
     </table>
-    <br>
+    <br/>
 
-    <input id="seq" type="text">
-    <input id="title" type="text">
-    <input id="contents" type="text">
-    <input id="author" type="text">
+    <input id="seq" type="text" placeholder="순번">
+    <input id="title" type="text" placeholder="제목">
+    <input id="contents" type="text" placeholder="내용">
+    <input id="author" type="text" placeholder="작성자">
 
     <button id="insertBtn">입력</button>
     <button id="updateBtn">수정</button>
