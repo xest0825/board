@@ -1,13 +1,13 @@
 package com.example.board.controller;
 
+import com.example.board.service.BoardService;
 import com.example.board.vo.Board;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,31 +16,21 @@ import java.util.List;
 @RestController
 public class BoardRestController {
 
-    @GetMapping("/boards")
+    @Autowired
+    private BoardService service;
+
+    @GetMapping("/items")
     public ResponseEntity<List<HashMap<String, Object>>> getBoardItems() {
         List list = new ArrayList<HashMap<String, Object>>();
-        HashMap map = new HashMap<String, Object>();
-
-        map.put("title", "향수");
-        map.put("contents", "넒은동쪽 끝으로");
-        map.put("author", "choiys");
-
-        list.add(map);
-
-        HashMap map2 = new HashMap<String, Object>();
-
-        map2.put("title", "자바공부");
-        map2.put("contents", "열심히 해봅시다");
-        map2.put("author", "shinwj");
-
-        list.add(map2);
+        Board vo = new Board();
+        list = service.getItemList(vo);
 
         ResponseEntity<List<HashMap<String, Object>>> ret = new ResponseEntity<>(list, HttpStatus.OK);
         return ret;
     };
 
 
-    @PostMapping("/boards")
+    @PostMapping("/items")
     public ResponseEntity<HashMap<String, Object>> insertItems(@RequestBody Board model) {
         String title = model.getTitle();
         String contents = model.getContents();
@@ -48,7 +38,45 @@ public class BoardRestController {
         log.info(title + ", " + contents + ", " + author);
 
         HashMap map = new HashMap<String, Object>();
-        map.put("result", "OK");
+        if (service.insertItem(model) > 0) {
+            map.put("result", "OK");
+        } else {
+            map.put("result", "FAIL");
+        }
+
+        ResponseEntity<HashMap<String, Object>> ret = new ResponseEntity<>(map, HttpStatus.OK);
+        return ret;
+    };
+
+    @PutMapping("/items")
+    public ResponseEntity<HashMap<String, Object>> updateItems(@RequestBody Board model) {
+        String seq = model.getSeq();
+        String title = model.getTitle();
+        String contents = model.getContents();
+        String author = model.getAuthor();
+        log.info(seq + "," + title + ", " + contents + ", " + author);
+
+        HashMap map = new HashMap<String, Object>();
+        if (service.updateItem(model) > 0) {
+            map.put("result", "OK");
+        } else {
+            map.put("result", "FAIL");
+        }
+        ResponseEntity<HashMap<String, Object>> ret = new ResponseEntity<>(map, HttpStatus.OK);
+        return ret;
+    };
+
+    @DeleteMapping("/items")
+    public ResponseEntity<HashMap<String, Object>> deleteItems(@RequestBody Board model) {
+        String seq = model.getSeq();
+        log.info(seq);
+
+        HashMap map = new HashMap<String, Object>();
+        if (service.deleteItem(model) > 0) {
+            map.put("result", "OK");
+        } else {
+            map.put("result", "FAIL");
+        }
         ResponseEntity<HashMap<String, Object>> ret = new ResponseEntity<>(map, HttpStatus.OK);
         return ret;
     };

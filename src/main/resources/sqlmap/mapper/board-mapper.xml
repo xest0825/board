@@ -3,31 +3,65 @@
 
 <mapper namespace="Board">
 
-    <sql id="getItemListSql">
-        SELECT tb1.bd_no
-             , tb1.item_no
-             , tb1.up_item_no
-             , tb1.title
-             , tb1.content
-             , tb1.reg_id
-             , tb1.reg_dtm
-             , tb1.mod_id
-             , tb1.mod_dtm
-        FROM tb_bd_item  tb1
-         JOIN tb_bd_board tb2
-           ON tb1.bd_no = tb2.bd_no
-        WHERE 1 = 1
-    </sql>
-
-    <select id="getItemList" parameterType="Hmap" resultType="Hmap">
+    <select id="getItemList" parameterType="com.example.board.vo.Board" resultType="Hmap">
         /* board-mapper.xml getItemList 게시글 목록 조회 */
         <include refid="getItemListSql" />
     </select>
 
-    <insert id="insertEmp" parameterType="Hmap">
-        INSERT INTO tbcn_emp (
-                              ''
-        )
+    <sql id="getItemListSql">
+          SELECT tb1.seq
+               , tb1.title
+               , tb1.contents
+               , tb1.author
+               , tb1.reg_dtm
+               , tb1.up_dtm
+            FROM tb_item  tb1
+        <where>
+            <if test='@com.example.board.util.CommonUtil@isNotEmpty(seq)'>
+             AND tb1.seq = #{seq}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insertItem" parameterType="com.example.board.vo.Board">
+        /* board-mapper.xml insertItem */
+        INSERT
+          INTO tb_item
+             (
+               title
+             , contents
+             , author
+             , reg_dtm
+             )
+        VALUES
+             (
+               #{title}
+             , #{contents}
+             , #{author}
+             , NOW()
+             )
     </insert>
+
+    <update id="updateItem" parameterType="com.example.board.vo.Board">
+        /* board-mapper.xml updateItem */
+        UPDATE tb_item
+           SET up_dtm = NOW()
+             <if test='@com.example.board.util.CommonUtil@isNotEmpty(title)'>
+             , title = #{title}
+            </if>
+            <if test='@com.example.board.util.CommonUtil@isNotEmpty(contents)'>
+            , contents = #{contents}
+            </if>
+            <if test='@com.example.board.util.CommonUtil@isNotEmpty(author)'>
+            , author = #{author}
+            </if>
+         WHERE seq = #{seq}
+    </update>
+
+    <delete id="deleteItem" parameterType="com.example.board.vo.Board">
+        /* board-mapper.xml deleteItem */
+        DELETE FROM tb_item
+         WHERE seq = #{seq}
+    </delete>
 
 </mapper>

@@ -10,31 +10,16 @@
 </style>
 <script>
     $(document).ready(function(){
+
         $('#searchBtn').on('click', function(){
             console.log('search');
-
-            $.get('/boards', function(data){
+            $.get('/items', function(data){
                 console.log(data);
                 drawTable(data);
             });
-            /*
-            $.ajax({
-                url : '/boards'
-                , type : 'GET'
-                , data : {id : "3", gender : "M"}
-                , contentType : 'application/json; charset=UTF-8'
-                , success : function(data){
-                    console.log(data);
-
-                }
-                , error : function(req, status, error) {
-                    console.log(req + status + error);
-                }
-            });
-             */
         });
 
-        $('#insertBtn').on('click', function(){
+        $('#insertBtn').on('click', function() {
             console.log('insert');
             var title = '';
             var contents = '';
@@ -52,8 +37,62 @@
 
 
             $.ajax({
-                url : '/boards'
-                , type : 'POST'
+                url: '/items'
+                , type: 'POST'
+                , data: JSON.stringify(boardData)
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#updateBtn').on('click', function() {
+            console.log('update');
+            let title = $('#title').val();
+            let contents = $('#contents').val();
+            let author = $('#author').val();
+            let seq = $('#seq').val();
+            console.log(seq + ', ' + title + ', ' + contents + ', ' + author);
+
+            let boardData = {};
+            boardData['title'] = title;
+            boardData['contents'] = contents;
+            boardData['author'] = author;
+            boardData['seq'] = seq;
+            console.log(boardData);
+
+            $.ajax({
+                url: '/items'
+                , type: 'PUT'
+                , data: JSON.stringify(boardData)
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#deleteBtn').on('click', function(){
+            console.log('delete');
+            let seq = $('#seq').val();
+            console.log(seq);
+
+            let boardData = {};
+            boardData['seq'] = seq;
+            console.log(boardData);
+
+            $.ajax({
+                url : '/items'
+                , type : 'DELETE'
                 , data : JSON.stringify(boardData)
                 , contentType : 'application/json; charset=UTF-8'
                 , success : function(data){
@@ -64,23 +103,24 @@
                 }
             });
 
-
         });
 
     });
 
     function drawTable(data){
 
-        var html = '';
-        for (i = 0; i< data.length; i++){
-            var item = {};
+        let html = '';
+        for (let i = 0; i< data.length; i++){
+            let item = {};
             item = data[i];
            console.log(item);
 
            html += '<tr>';
-           html += '<td text-align="right" style="color:red;">' + item['title']+'<td>'; // item.title
+           html += '<td>' + item['seq']+'<td>';
+           html += '<td>' + item['title']+'<td>';
            html += '<td>' + item['contents']+'<td>';
            html += '<td>' + item['author']+'<td>';
+           html += '<td>' + item['reg_dtm']+'<td>';
            html += '</tr>';
            $('#tb1').html(html);
         }
@@ -88,13 +128,18 @@
     }
 </script>
 <body>
-<button id="searchBtn">조회</button>
-<table id="tb1">
-</table>
-<br>
-<input id="title" type="text">
-<input id="contents" type="text">
-<input id="author" type="text">
-<button id="insertBtn">입력</button>
+    <button id="searchBtn">조회</button>
+    <table id="tb1">
+    </table>
+    <br>
+
+    <input id="seq" type="text">
+    <input id="title" type="text">
+    <input id="contents" type="text">
+    <input id="author" type="text">
+
+    <button id="insertBtn">입력</button>
+    <button id="updateBtn">수정</button>
+    <button id="deleteBtn">삭제</button>
 </body>
 </html>

@@ -14,27 +14,9 @@ import java.util.Date;
 @Controller
 public class BoardController {
 
-    @GetMapping("/items")
+    @GetMapping("/board")
     public ModelAndView goItems(HttpServletRequest req) {
         ModelAndView mv = new ModelAndView("items");
-        String id = req.getParameter("id");
-        log.info("id : " + id);
-        mv.addObject("serverTime", "2022-07-16 15:00:00");
-        mv.addObject("id", id);
-        return mv;
-    }
-
-    @GetMapping("/items/list")
-    public ModelAndView goItemsList() {
-        ModelAndView mv = new ModelAndView("list/itemsList");
-        mv.addObject("serverTime", "2022-07-16 15:00:00");
-        return mv;
-    }
-
-    @GetMapping("/items2")
-    public ModelAndView goItems2() {
-        ModelAndView mv = new ModelAndView("items2");
-        mv.addObject("serverTime", "2022-07-16 15:20:00");
         return mv;
     }
 
