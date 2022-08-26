@@ -1,0 +1,163 @@
+<html xmlns:tm="http://www.thymeleaf.org">
+<title>Home</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="/js/jquery-3.6.0.min.js"></script>
+<style>
+    table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
+    tr {border:solid 1px black; border-collapse: collapse}
+    th {border:dotted 1px black; border-collapse: collapse}
+    td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
+</style>
+<script>
+    $(document).ready(function(){
+
+        $('#searchBtn').on('click', function(){
+            console.log('search');
+            $.get('/items', function(data){
+                console.log(data);
+                drawTable(data);
+            });
+        });
+
+        $('#insertBtn').on('click', function() {
+            console.log('insert');
+            var title = '';
+            var contents = '';
+            var author = '';
+            title = $('#title').val();
+            contents = $('#contents').val();
+            author = $('#author').val();
+            console.log(title + ', ' + contents + ', ' + author);
+
+            var boardData = {};
+            boardData['title'] = title;
+            boardData['contents'] = contents;
+            boardData['author'] = author;
+            console.log(boardData);
+
+
+            $.ajax({
+                url: '/items'
+                , type: 'POST'
+                , data: JSON.stringify(boardData)
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#updateBtn').on('click', function() {
+            console.log('update');
+            let title = $('#title').val();
+            let contents = $('#contents').val();
+            let author = $('#author').val();
+            let seq = $('#seq').val();
+            console.log(seq + ', ' + title + ', ' + contents + ', ' + author);
+
+            let boardData = {};
+            boardData['title'] = title;
+            boardData['contents'] = contents;
+            boardData['author'] = author;
+            boardData['seq'] = seq;
+            console.log(boardData);
+
+            $.ajax({
+                url: '/items'
+                , type: 'PUT'
+                , data: JSON.stringify(boardData)
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#deleteBtn').on('click', function(){
+            console.log('delete');
+            let seq = $('#seq').val();
+            console.log(seq);
+
+            let boardData = {};
+            boardData['seq'] = seq;
+            console.log(boardData);
+
+            $.ajax({
+                url : '/items'
+                , type : 'DELETE'
+                , data : JSON.stringify(boardData)
+                , contentType : 'application/json; charset=UTF-8'
+                , success : function(data){
+                    console.log(data);
+                }
+                , error : function(req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+    });
+
+    function drawTable(data){
+
+        let html = '';
+        for (let i = 0; i< data.length; i++){
+            let item = {};
+            item = data[i];
+            console.log(item);
+
+            html += '<tr>';
+            html += ' <td>' + item['seq']+'</td>';
+            html += ' <td>' + item['title']+'</td>';
+            html += ' <td>' + item['contents']+'</td>';
+            html += ' <td>' + item['author']+'</td>';
+            html += ' <td>' + item['reg_dtm']+'</td>';
+            html += '</tr>';
+            $('#tb1').html(html);
+        }
+
+    }
+</script>
+<body>
+    <button id="searchBtn">조회</button>
+
+    <table>
+        <colgroup>
+            <col style="width:10%;"/>
+            <col style="width:20%;"/>
+            <col style="width:45%;"/>
+            <col style="width:10%;"/>
+            <col style="width:15%;"/>
+        </colgroup>
+        <thead style="background-color:lightsteelblue;">
+            <th>순번</th>
+            <th>제목</th>
+            <th>내용</th>
+            <th>작성자</th>
+            <th>작성일시</th>
+        </thead>
+        <tbody id="tb1">
+
+        </tbody>
+    </table>
+    <br/>
+
+    <input id="seq" type="text" placeholder="순번">
+    <input id="title" type="text" placeholder="제목">
+    <input id="contents" type="text" placeholder="내용">
+    <input id="author" type="text" placeholder="작성자">
+
+    <button id="insertBtn">입력</button>
+    <button id="updateBtn">수정</button>
+    <button id="deleteBtn">삭제</button>
+</body>
+</html>

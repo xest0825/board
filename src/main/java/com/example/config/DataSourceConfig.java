@@ -1,4 +1,4 @@
-package com.example.board.config;
+package com.example.config;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;

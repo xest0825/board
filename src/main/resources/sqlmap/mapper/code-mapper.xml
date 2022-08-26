@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Code">
+
+    <select id="getCodeList" parameterType="com.example.code.vo.Code" resultType="Hmap">
+        /* board-mapper.xml getCodeList  코드 조회 */
+        <include refid="getCodeListSql" />
+    </select>
+
+    <sql id="getCodeListSql">
+        /* tb_code를 조회하는 쿼리를 작성하세요 */
+        <where>
+            <if test='@com.example.board.util.CommonUtil@isNotEmpty(cd)'>
+             AND tb1.cd = #{cd}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insertCode" parameterType="com.example.code.vo.Code">
+        /* board-mapper.xml insertCode 코드 입력 */
+        /* tb_code에 입력하는 쿼리를 작성하세요 */
+    </insert>
+
+    <update id="updateCode" parameterType="com.example.code.vo.Code">
+        /* board-mapper.xml updateCode 코드 수정 */
+        /* cd를 이용하여 tb_code를 수정하는 쿼리를 작성하세요 */
+    </update>
+
+    <delete id="deleteCode" parameterType="com.example.code.vo.Code">
+        /* board-mapper.xml deleteCode 코드 삭제 */
+        /* seq를 이용하여 tb_code를 삭제하는 쿼리를 작성하세요 */
+    </delete>
+
+</mapper>

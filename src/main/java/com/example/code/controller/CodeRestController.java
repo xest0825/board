@@ -1,7 +1,7 @@
-package com.example.board.controller;
+package com.example.code.controller;
 
-import com.example.board.service.BoardService;
-import com.example.board.vo.Board;
+import com.example.code.service.CodeService;
+import com.example.code.vo.Code;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,32 +14,29 @@ import java.util.List;
 
 @Slf4j
 @RestController
-public class BoardRestController {
+public class CodeRestController {
 
     @Autowired
-    private BoardService service;
+    private CodeService service;
 
-    @GetMapping("/items")
+    @GetMapping("/codes")
     public ResponseEntity<List<HashMap<String, Object>>> getBoardItems() {
-        log.info("/items");
+        log.info("[GET] /codes");
         List list = new ArrayList<HashMap<String, Object>>();
-        Board vo = new Board();
-        list = service.getItemList(vo);
+        Code vo = new Code();
+        list = service.getCodeList(vo);
 
         ResponseEntity<List<HashMap<String, Object>>> ret = new ResponseEntity<>(list, HttpStatus.OK);
         return ret;
     };
 
 
-    @PostMapping("/items")
-    public ResponseEntity<HashMap<String, Object>> insertItems(@RequestBody Board model) {
-        String title = model.getTitle();
-        String contents = model.getContents();
-        String author = model.getAuthor();
-        log.info(title + ", " + contents + ", " + author);
+    @PostMapping("/codes")
+    public ResponseEntity<HashMap<String, Object>> insertItems(@RequestBody Code model) {
+        log.info("[POST] /codes");
 
         HashMap map = new HashMap<String, Object>();
-        if (service.insertItem(model) > 0) {
+        if (service.insertCode(model) > 0) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");
@@ -47,18 +44,15 @@ public class BoardRestController {
 
         ResponseEntity<HashMap<String, Object>> ret = new ResponseEntity<>(map, HttpStatus.OK);
         return ret;
+
     };
 
-    @PutMapping("/items")
-    public ResponseEntity<HashMap<String, Object>> updateItems(@RequestBody Board model) {
-        String seq = model.getSeq();
-        String title = model.getTitle();
-        String contents = model.getContents();
-        String author = model.getAuthor();
-        log.info(seq + "," + title + ", " + contents + ", " + author);
+    @PutMapping("/codes")
+    public ResponseEntity<HashMap<String, Object>> updateItems(@RequestBody Code model) {
+        log.info("[PUT] /codes");
 
         HashMap map = new HashMap<String, Object>();
-        if (service.updateItem(model) > 0) {
+        if (service.updateCode(model) > 0) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");
@@ -67,13 +61,15 @@ public class BoardRestController {
         return ret;
     };
 
-    @DeleteMapping("/items")
-    public ResponseEntity<HashMap<String, Object>> deleteItems(@RequestBody Board model) {
-        String seq = model.getSeq();
-        log.info(seq);
+    @DeleteMapping("/codes")
+    public ResponseEntity<HashMap<String, Object>> deleteItems(@RequestBody Code model) {
+        log.info("[DELETE] /codes");
+
+        String cd = model.getCd();
+        log.info(cd);
 
         HashMap map = new HashMap<String, Object>();
-        if (service.deleteItem(model) > 0) {
+        if (service.deleteCode(model) > 0) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");
