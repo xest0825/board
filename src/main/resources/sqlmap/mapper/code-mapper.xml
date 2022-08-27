@@ -4,34 +4,48 @@
 <mapper namespace="Code">
 
     <select id="getCodeList" parameterType="com.example.code.vo.Code" resultType="Hmap">
-        /* board-mapper.xml getCodeList  코드 조회 */
+        /* code-mapper.xml getCodeList  코드 조회 */
         <include refid="getCodeListSql" />
     </select>
 
     <sql id="getCodeListSql">
         /* tb_code 테이블을 조회하는 쿼리를 작성하세요 */
+          SELECT tb1.grp_cd
+               , tb1.cd
+               , tb1.cd_nm
+               , tb1.sort_no
+               , tb1.in_dtm
+            FROM tb_code tb1
         <where>
+                 1 = 1
             <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
              AND tb1.grp_cd = #{grp_cd}
             </if>
             <if test='@com.example.util.CommonUtil@isNotEmpty(cd)'>
              AND tb1.cd = #{cd}
             </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(search_word)'>
+             AND (   UPPER(tb1.grp_cd) LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                  OR UPPER(tb1.cd)     LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                  OR UPPER(tb1.cd_nm)  LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                 )
+            </if>
+        ORDER BY tb1.grp_cd, tb1.sort_no, tb1.cd
         </where>
     </sql>
 
     <insert id="insertCode" parameterType="com.example.code.vo.Code">
-        /* board-mapper.xml insertCode 코드 입력 */
+        /* code-mapper.xml insertCode 코드 입력 */
         /* tb_code 테이블에 입력하는 쿼리를 작성하세요 */
     </insert>
 
     <update id="updateCode" parameterType="com.example.code.vo.Code">
-        /* board-mapper.xml updateCode 코드 수정 */
+        /* code-mapper.xml updateCode 코드 수정 */
         /* grp_cd와 cd를 이용하여 tb_code 테이블에 수정하는 쿼리를 작성하세요 */
     </update>
 
     <delete id="deleteCode" parameterType="com.example.code.vo.Code">
-        /* board-mapper.xml deleteCode 코드 삭제 */
+        /* code-mapper.xml deleteCode 코드 삭제 */
         /* grp_cd와 cd를 이용하여 tb_code 테이블에서 삭제하는 쿼리를 작성하세요 */
     </delete>
 
