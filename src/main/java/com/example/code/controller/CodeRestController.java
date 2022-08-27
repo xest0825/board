@@ -2,6 +2,7 @@ package com.example.code.controller;
 
 import com.example.code.service.CodeService;
 import com.example.code.vo.Code;
+import com.example.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,10 @@ public class CodeRestController {
         log.info("[POST] /codes");
 
         HashMap map = new HashMap<String, Object>();
-        if (service.insertCode(model) > 0) {
+        if (CommonUtil.isEmpty(model.getCd()) || CommonUtil.isEmpty(model.getGrp_cd())){
+            map.put("result", "FAIL");
+            map.put("msg", "필수값이 없습니다.");
+        } else if (service.insertCode(model) > 0) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");
@@ -51,7 +55,10 @@ public class CodeRestController {
         log.info("[PUT] /codes");
 
         HashMap map = new HashMap<String, Object>();
-        if (service.updateCode(model) > 0) {
+        if (CommonUtil.isEmpty(model.getCd()) || CommonUtil.isEmpty(model.getGrp_cd())){
+            map.put("result", "FAIL");
+            map.put("msg", "필수값이 없습니다.");
+        } else if (service.updateCode(model) > 0) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");
@@ -68,7 +75,10 @@ public class CodeRestController {
         log.info(cd);
 
         HashMap map = new HashMap<String, Object>();
-        if (service.deleteCode(model) > 0) {
+        if (CommonUtil.isEmpty(model.getCd()) || CommonUtil.isEmpty(model.getGrp_cd())){
+            map.put("result", "FAIL");
+            map.put("msg", "필수값이 없습니다.");
+        } else if (service.deleteCode(model) > 0) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");
