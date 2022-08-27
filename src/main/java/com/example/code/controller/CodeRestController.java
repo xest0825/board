@@ -20,10 +20,9 @@ public class CodeRestController {
     private CodeService service;
 
     @GetMapping("/codes")
-    public ResponseEntity<List<HashMap<String, Object>>> getBoardItems() {
+    public ResponseEntity<List<HashMap<String, Object>>> getBoardItems(Code vo) {
         log.info("[GET] /codes");
         List list = new ArrayList<HashMap<String, Object>>();
-        Code vo = new Code();
         list = service.getCodeList(vo);
 
         ResponseEntity<List<HashMap<String, Object>>> ret = new ResponseEntity<>(list, HttpStatus.OK);
