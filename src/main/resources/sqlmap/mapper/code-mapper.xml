@@ -9,7 +9,7 @@
     </select>
 
     <sql id="getCodeListSql">
-        /* tb_code를 조회하는 쿼리를 작성하세요 */
+        /* tb_code 테이블을 조회하는 쿼리를 작성하세요 */
         <where>
             <if test='@com.example.board.util.CommonUtil@isNotEmpty(grp_cd)'>
              AND tb1.grp_cd = #{grp_cd}
@@ -32,7 +32,7 @@
 
     <delete id="deleteCode" parameterType="com.example.code.vo.Code">
         /* board-mapper.xml deleteCode 코드 삭제 */
-        /* grp_cd와 cd를 이용하여 tb_code 테입에서 삭제하는 쿼리를 작성하세요 */
+        /* grp_cd와 cd를 이용하여 tb_code 테이블에서 삭제하는 쿼리를 작성하세요 */
     </delete>
 
 </mapper>
