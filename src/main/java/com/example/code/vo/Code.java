@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class Code {
 
-    String cd_nm;
-    String cd;
-    String grp_cd_nm;
-    String grp_cd_val;
+    String cd_nm; // 코드명
+    String cd; // 코드
+    String grp_cd; // 그룹코드
+    String grp_cd_nm; // 그룹코드명
 }
