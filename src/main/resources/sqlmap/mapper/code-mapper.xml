@@ -11,10 +11,10 @@
     <sql id="getCodeListSql">
         /* tb_code 테이블을 조회하는 쿼리를 작성하세요 */
         <where>
-            <if test='@com.example.board.util.CommonUtil@isNotEmpty(grp_cd)'>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
              AND tb1.grp_cd = #{grp_cd}
             </if>
-            <if test='@com.example.board.util.CommonUtil@isNotEmpty(cd)'>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(cd)'>
              AND tb1.cd = #{cd}
             </if>
         </where>

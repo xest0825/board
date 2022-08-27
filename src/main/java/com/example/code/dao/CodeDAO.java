@@ -17,7 +17,7 @@ public class CodeDAO {
     private static final String SQL_PREFIX = "Code.";
 
     public List<HashMap<String, Object>> getCodeList(Code vo) {
-        return sqlSession.selectList(SQL_PREFIX + "getICodeList", vo);
+        return sqlSession.selectList(SQL_PREFIX + "getCodeList", vo);
     }
 
     public int insertCode(Code vo) {

@@ -13,9 +13,31 @@
 
         $('#searchBtn').on('click', function(){
             console.log('search');
-            $.get('/codes', function(data){
-                console.log(data);
-                drawTable(data);
+            let cd = $('#cd').val();
+            let cd_nm = $('#cd_nm').val();
+            let grp_cd = $('#grp_cd').val();
+            let sort_no = $('#sort_no').val();
+            let search_word = $('#search_word').val();
+
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['cd_nm'] = cd_nm;
+            codeData['grp_cd'] = grp_cd;
+            codeData['sort_no'] = sort_no;
+            codeData['search_word'] = search_word;
+            console.log(codeData);
+            $.ajax({
+                url: '/codes'
+                , type: 'GET'
+                , data: codeData
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                    drawTable(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
             });
         });
 
@@ -129,13 +151,18 @@
     }
 </script>
 <body>
+    <input id="search_word" type="text" placeholder="검색어 (그룹코드|코드|코드명)" style="width:200px;">
+    <input id="grp_cd" type="text" placeholder="그룹코드">
+    <input id="cd" type="text" placeholder="코드">
+    <input id="cd_nm" type="text" placeholder="코드명">
+    <input id="sort_no" type="number" placeholder="순번">
     <button id="searchBtn">조회</button>
 
     <table>
         <colgroup>
-            <col style="width:10%;"/>
             <col style="width:20%;"/>
-            <col style="width:45%;"/>
+            <col style="width:20%;"/>
+            <col style="width:35%;"/>
             <col style="width:10%;"/>
             <col style="width:15%;"/>
         </colgroup>
@@ -151,10 +178,6 @@
         </tbody>
     </table>
     <br/>
-
-    <input id="cd" type="text" placeholder="코드">
-    <input id="cd_nm" type="text" placeholder="코드명">
-    <input id="sort_no" type="number" placeholder="순번">
 
     <button id="insertBtn">입력</button>
     <button id="updateBtn">수정</button>
