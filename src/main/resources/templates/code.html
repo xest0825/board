@@ -13,7 +13,7 @@
 
         $('#searchBtn').on('click', function(){
             console.log('search');
-            $.get('/items', function(data){
+            $.get('/codes', function(data){
                 console.log(data);
                 drawTable(data);
             });
@@ -21,25 +21,24 @@
 
         $('#insertBtn').on('click', function() {
             console.log('insert');
-            var title = '';
-            var contents = '';
-            var author = '';
-            title = $('#title').val();
-            contents = $('#contents').val();
-            author = $('#author').val();
-            console.log(title + ', ' + contents + ', ' + author);
+            let cd = $('#cd').val();
+            let cd_nm = $('#cd_nm').val();
+            let grp_cd = $('#grp_cd').val();
+            let sort_no = $('#sort_no').val();
+            console.log(cd + ', ' + cd_nm + ', ' + grp_cd + ', ' + sort_no);
 
-            var boardData = {};
-            boardData['title'] = title;
-            boardData['contents'] = contents;
-            boardData['author'] = author;
-            console.log(boardData);
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['cd_nm'] = cd_nm;
+            codeData['grp_cd'] = grp_cd;
+            codeData['sort_no'] = sort_no;
+            console.log(codeData);
 
 
             $.ajax({
-                url: '/items'
+                url: '/codes'
                 , type: 'POST'
-                , data: JSON.stringify(boardData)
+                , data: JSON.stringify(codeData)
                 , contentType: 'application/json; charset=UTF-8'
                 , success: function (data) {
                     console.log(data);
@@ -53,23 +52,23 @@
 
         $('#updateBtn').on('click', function() {
             console.log('update');
-            let title = $('#title').val();
-            let contents = $('#contents').val();
-            let author = $('#author').val();
-            let seq = $('#seq').val();
-            console.log(seq + ', ' + title + ', ' + contents + ', ' + author);
+            let cd = $('#cd').val();
+            let cd_nm = $('#cd_nm').val();
+            let grp_cd = $('#grp_cd').val();
+            let sort_no = $('#sort_no').val();
+            console.log(cd + ', ' + cd_nm + ', ' + grp_cd + ', ' + sort_no);
 
-            let boardData = {};
-            boardData['title'] = title;
-            boardData['contents'] = contents;
-            boardData['author'] = author;
-            boardData['seq'] = seq;
-            console.log(boardData);
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['cd_nm'] = cd_nm;
+            codeData['grp_cd'] = grp_cd;
+            codeData['sort_no'] = sort_no;
+            console.log(codeData);
 
             $.ajax({
-                url: '/items'
+                url: '/codes'
                 , type: 'PUT'
-                , data: JSON.stringify(boardData)
+                , data: JSON.stringify(codeData)
                 , contentType: 'application/json; charset=UTF-8'
                 , success: function (data) {
                     console.log(data);
@@ -83,17 +82,19 @@
 
         $('#deleteBtn').on('click', function(){
             console.log('delete');
-            let seq = $('#seq').val();
-            console.log(seq);
+            let cd = $('#cd').val();
+            let grp_cd = $('#grp_cd').val();
+            console.log(cd + ', '  + grp_cd );
 
-            let boardData = {};
-            boardData['seq'] = seq;
-            console.log(boardData);
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['grp_cd'] = grp_cd;
+            console.log(codeData);
 
             $.ajax({
                 url : '/items'
                 , type : 'DELETE'
-                , data : JSON.stringify(boardData)
+                , data : JSON.stringify(codeData)
                 , contentType : 'application/json; charset=UTF-8'
                 , success : function(data){
                     console.log(data);
@@ -111,16 +112,16 @@
 
         let html = '';
         for (let i = 0; i< data.length; i++){
-            let item = {};
-            item = data[i];
-            console.log(item);
+            let code = {};
+            code = data[i];
+            console.log(code);
 
             html += '<tr>';
-            html += ' <td>' + item['seq']+'</td>';
-            html += ' <td>' + item['title']+'</td>';
-            html += ' <td>' + item['contents']+'</td>';
-            html += ' <td>' + item['author']+'</td>';
-            html += ' <td>' + item['reg_dtm']+'</td>';
+            html += ' <td>' + code['grp_cd']+'</td>';
+            html += ' <td>' + code['cd']+'</td>';
+            html += ' <td>' + code['cd_nm']+'</td>';
+            html += ' <td>' + code['in_dtm']+'</td>';
+            html += ' <td>' + code['sort_no']+'</td>';
             html += '</tr>';
             $('#tb1').html(html);
         }
@@ -139,10 +140,10 @@
             <col style="width:15%;"/>
         </colgroup>
         <thead style="background-color:lightsteelblue;">
+            <th>그룹코드명</th>
+            <th>코드</th>
+            <th>코드명</th>
             <th>순번</th>
-            <th>제목</th>
-            <th>내용</th>
-            <th>작성자</th>
             <th>작성일시</th>
         </thead>
         <tbody id="tb1">
@@ -151,10 +152,9 @@
     </table>
     <br/>
 
-    <input id="seq" type="text" placeholder="순번">
-    <input id="title" type="text" placeholder="제목">
-    <input id="contents" type="text" placeholder="내용">
-    <input id="author" type="text" placeholder="작성자">
+    <input id="cd" type="text" placeholder="코드">
+    <input id="cd_nm" type="text" placeholder="코드명">
+    <input id="sort_no" type="number" placeholder="순번">
 
     <button id="insertBtn">입력</button>
     <button id="updateBtn">수정</button>
