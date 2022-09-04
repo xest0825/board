@@ -17,7 +17,7 @@
                , DATE_FORMAT(tb1.up_dtm, '%Y-%m-%d %H:%i:%s') up_dtm
             FROM tb_item  tb1
         <where>
-            <if test='@com.example.board.util.CommonUtil@isNotEmpty(seq)'>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(seq)'>
              AND tb1.seq = #{seq}
             </if>
         </where>
@@ -46,13 +46,13 @@
         /* board-mapper.xml updateItem */
         UPDATE tb_item
            SET up_dtm = NOW()
-             <if test='@com.example.board.util.CommonUtil@isNotEmpty(title)'>
+             <if test='@com.example.util.CommonUtil@isNotEmpty(title)'>
              , title = #{title}
             </if>
-            <if test='@com.example.board.util.CommonUtil@isNotEmpty(contents)'>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(contents)'>
             , contents = #{contents}
             </if>
-            <if test='@com.example.board.util.CommonUtil@isNotEmpty(author)'>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(author)'>
             , author = #{author}
             </if>
          WHERE seq = #{seq}

@@ -11,11 +11,14 @@
     <sql id="getCodeListSql">
         /* tb_code 테이블을 조회하는 쿼리를 작성하세요 */
           SELECT tb1.grp_cd
+               , tb2.grp_cd_nm
                , tb1.cd
                , tb1.cd_nm
                , tb1.sort_no
                , DATE_FORMAT(tb1.in_dtm, '%Y-%m-%d %H:%i:%s') in_dtm
             FROM tb_code tb1
+            LEFT OUTER JOIN tb_code_group tb2
+              ON tb1.grp_cd = tb2.grp_cd
         <where>
                  1 = 1
             <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
@@ -36,17 +39,120 @@
 
     <insert id="insertCode" parameterType="com.example.code.vo.Code">
         /* code-mapper.xml insertCode 코드 입력 */
-        /* tb_code 테이블에 입력하는 쿼리를 작성하세요 */
+        INSERT
+          INTO tb_code
+             (
+               grp_cd
+             , cd
+             , cd_nm
+             , sort_no
+             , in_dtm
+             )
+        VALUES
+             (
+               #{grp_cd}
+             , #{cd}
+             , #{cd_nm}
+             , #{sort_no}
+             , #{in_dtm}
+             )
     </insert>
 
     <update id="updateCode" parameterType="com.example.code.vo.Code">
         /* code-mapper.xml updateCode 코드 수정 */
-        /* grp_cd와 cd를 이용하여 tb_code 테이블에 수정하는 쿼리를 작성하세요 */
+        UPDATE tb_code
+           SET in_dtm = NOW()
+        <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+             , grp_cd = #{grp_cd}
+        </if>
+        <if test='@com.example.util.CommonUtil@isNotEmpty(cd)'>
+             , cd = #{cd}
+        </if>
+        <if test='@com.example.util.CommonUtil@isNotEmpty(cd_nm)'>
+            , cd_nm = #{cd_nm}
+        </if>
+        <if test='@com.example.util.CommonUtil@isNotEmpty(sort_no)'>
+            , sort_no = #{sort_no}
+        </if>
+        WHERE grp_cd = #{grp_cd}
+          AND cd = #{cd}
     </update>
 
     <delete id="deleteCode" parameterType="com.example.code.vo.Code">
         /* code-mapper.xml deleteCode 코드 삭제 */
-        /* grp_cd와 cd를 이용하여 tb_code 테이블에서 삭제하는 쿼리를 작성하세요 */
+        DELETE FROM tb_code
+         WHERE grp_cd = #{grp_cd}
+           AND cd = #{cd}
+    </delete>
+
+    <select id="getGroupCodeList" parameterType="com.example.code.vo.Code" resultType="Hmap">
+        /* code-mapper.xml getGroupCodeList  그룹 코드 조회 */
+        <include refid="getGroupCodeListSql" />
+    </select>
+
+    <sql id="getGroupCodeListSql">
+        SELECT tb1.grp_cd
+        , tb1.grp_cd_nm
+        , tb1.sort_no
+        , DATE_FORMAT(tb1.in_dtm, '%Y-%m-%d %H:%i:%s') in_dtm
+        FROM tb_code_group tb1
+        <where>
+            1 = 1
+            <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+                AND tb1.grp_cd = #{grp_cd}
+            </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd_nm)'>
+                AND tb1.grp_cd_nm = #{grp_cd_nm}
+            </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(search_word)'>
+                AND (   UPPER(tb1.grp_cd) LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                OR UPPER(tb1.grp_cd_nm)  LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                )
+            </if>
+            ORDER BY tb1.sort_no, tb1.grp_cd
+        </where>
+    </sql>
+
+    <insert id="insertGroupCode" parameterType="com.example.code.vo.Code">
+        /* code-mapper.xml insertCode 그룹 코드 입력 */
+       INSERT
+         INTO tb_code_group
+            (
+              grp_cd
+            , grp_cd_nm
+            , sort_no
+            , in_dtm
+            )
+       VALUES
+            (
+              #{grp_cd}
+            , #{grp_cd_nm}
+            , #{sort_no}
+            , #{in_dtm}
+            )
+    </insert>
+
+    <update id="updateGroupCode" parameterType="com.example.code.vo.Code">
+        /* code-mapper.xml updateGroupCode 그룹 코드 수정 */
+        UPDATE tb_code_group
+        SET in_dtm = NOW()
+        <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+            , grp_cd = #{grp_cd}
+        </if>
+        <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd_nm)'>
+            , grp_cd_nm = #{grp_cd_nm}
+        </if>
+        <if test='@com.example.util.CommonUtil@isNotEmpty(sort_no)'>
+            , sort_no = #{sort_no}
+        </if>
+        WHERE grp_cd = #{grp_cd}
+        AND cd = #{cd}
+    </update>
+
+    <delete id="deleteGroupCode" parameterType="com.example.code.vo.Code">
+        /* code-mapper.xml deleteGroupCode 그룹 코드 삭제 */
+        DELETE FROM tb_code_group
+        WHERE grp_cd = #{grp_cd}
     </delete>
 
 </mapper>

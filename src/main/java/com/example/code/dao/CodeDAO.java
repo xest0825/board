@@ -32,5 +32,20 @@ public class CodeDAO {
         return sqlSession.update(SQL_PREFIX + "deleteCode", vo);
     }
 
+    public List<HashMap<String, Object>> getGroupCodeList(Code vo) {
+        return sqlSession.selectList(SQL_PREFIX + "getGroupCodeList", vo);
+    }
+
+    public int insertGroupCode(Code vo) {
+        return sqlSession.insert(SQL_PREFIX + "insertGroupCode", vo);
+    }
+
+    public int updateGroupCode(Code vo) {
+        return sqlSession.update(SQL_PREFIX + "updateGroupCode", vo);
+    }
+
+    public int deleteGroupCode(Code vo) {
+        return sqlSession.update(SQL_PREFIX + "deleteGroupCode", vo);
+    }
 
 }

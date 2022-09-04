@@ -29,4 +29,20 @@ public class CodeService {
     public int deleteCode(Code vo) {
         return dao.deleteCode(vo);
     }
+
+    public List<HashMap<String, Object>> getGroupCodeList(Code vo){
+        return dao.getGroupCodeList(vo);
+    }
+
+    public int insertGroupCode(Code vo) {
+        return dao.insertGroupCode(vo);
+    }
+
+    public int updateGroupCode(Code vo) {
+        return dao.updateGroupCode(vo);
+    }
+
+    public int deleteGroupCode(Code vo) {
+        return dao.deleteGroupCode(vo);
+    }
 }

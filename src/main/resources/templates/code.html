@@ -2,6 +2,7 @@
 <title>Home</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script src="/js/jquery-3.6.0.min.js"></script>
+<script src="/js/table-pagination.js"></script>
 <style>
     table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
     tr {border:solid 1px black; border-collapse: collapse}
@@ -10,6 +11,8 @@
 </style>
 <script>
     $(document).ready(function(){
+
+        getGroupCodeList();
 
         $('#searchBtn').on('click', function(){
             console.log('search');
@@ -114,7 +117,7 @@
             console.log(codeData);
 
             $.ajax({
-                url : '/items'
+                url : '/codes'
                 , type : 'DELETE'
                 , data : JSON.stringify(codeData)
                 , contentType : 'application/json; charset=UTF-8'
@@ -128,31 +131,85 @@
 
         });
 
+        $('#initBtn').on('click', function(){
+            console.log('init');
+            $('#search_word').val('');
+            $('#cd').val('');
+            $('#cd_nm').val('');
+            $('#grp_cd').val('');
+            $('#sort_no').val('');
+        });
+
     });
+
+    function getGroupCodeList(){
+        let codeData = {};
+        $.ajax({
+            url: '/group-codes'
+            , type: 'GET'
+            , data: codeData
+            , contentType: 'application/json; charset=UTF-8'
+            , success: function (data) {
+                console.log(data);
+                drawSelectBox(data);
+            }
+            , error: function (req, status, error) {
+                console.log(req + status + error);
+            }
+        });
+    }
 
     function drawTable(data){
 
         let html = '';
-        for (let i = 0; i< data.length; i++){
-            let code = {};
-            code = data[i];
-            console.log(code);
-
-            html += '<tr>';
-            html += ' <td>' + code['grp_cd']+'</td>';
-            html += ' <td>' + code['cd']+'</td>';
-            html += ' <td>' + code['cd_nm']+'</td>';
-            html += ' <td>' + code['sort_no']+'</td>';
-            html += ' <td>' + code['in_dtm']+'</td>';
-            html += '</tr>';
+        if (data.length == 0) {
+            html += '<tr><td colspan="5" style="text-align:center;">조회된 결과가 없습니다. </td></tr>';
             $('#tb1').html(html);
+        } else {
+            for (let i = 0; i < data.length; i++) {
+
+                let code = {};
+                code = data[i];
+                console.log(code);
+
+                html += '<tr>';
+                html += ' <td>' + code['grp_cd_nm'] + '</td>';
+                html += ' <td>' + code['cd'] + '</td>';
+                html += ' <td>' + code['cd_nm'] + '</td>';
+                html += ' <td>' + code['sort_no'] + '</td>';
+                html += ' <td>' + code['in_dtm'] + '</td>';
+                html += '</tr>';
+
+                $('#tb1').html(html);
+            }
         }
 
+        $("#tb").createTablePagination({
+            rowPerPage: 10,
+            paginationColor: '#FFA4B6',
+            fontColor: '#0B1354',
+            paginationStyle: 'Borderless',
+            jumpPage: 'Disabled'
+        });
+    }
+
+    function drawSelectBox(data){
+        $('#grp_cd').empty();
+        let html = '';
+        html = '<option value="">그룹코드</option>';
+
+        for (let i = 0; i < data.length; i++){
+            html += '<option value="' + data[i]['grp_cd'] +'">'+ data[i]['grp_cd_nm']+'</option>'
+        }
+
+        $('#grp_cd').html(html);
     }
 </script>
 <body>
     <input id="search_word" type="text" placeholder="검색어 (그룹코드|코드|코드명)" style="width:200px;">
-    <input id="grp_cd" type="text" placeholder="그룹코드">
+    <select id="grp_cd" >
+        <option value="">그룹코드</option>
+    </select>
     <input id="cd" type="text" placeholder="코드">
     <input id="cd_nm" type="text" placeholder="코드명">
     <input id="sort_no" type="number" placeholder="순번">
@@ -160,8 +217,9 @@
     <button id="insertBtn">입력</button>
     <button id="updateBtn">수정</button>
     <button id="deleteBtn">삭제</button>
+    <button id="initBtn">초기화</button>
 
-    <table>
+    <table id="tb">
         <colgroup>
             <col style="width:15%;"/>
             <col style="width:15%;"/>
