@@ -13,29 +13,58 @@
 
         // 공통코드로 부터 카테고리를 조회하여 category 셀렉트 박스를 완성하세요.
         // 카테고리 셀렉트 박스의 선택값으로 조회, 입력, 수정, 삭제가 가능하도록 소스코드를 수정하세요.
+        getCategoryList();
 
         $('#searchBtn').on('click', function(){
             console.log('search');
-            $.get('/items', function(data){
-                console.log(data);
-                drawTable(data);
+            let author = $('#author').val();
+            let contents = $('#contents').val();
+            let title = $('#cd_nm').val();
+            let category = $('#category').val();
+            let seq = $('#seq').val();
+            let row_cnt = $('#row_cnt').val();
+
+            let boardData = {};
+            boardData['author'] = author;
+            boardData['contents'] = contents;
+            boardData['title'] = title;
+            boardData['category'] = category;
+            boardData['seq'] = seq;
+            boardData['row_cnt'] = row_cnt;
+            boardData['isPage'] = true;
+            console.log(boardData);
+            $.ajax({
+                url: '/items'
+                , type: 'GET'
+                , data: boardData
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                    drawTable(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
             });
         });
 
         $('#insertBtn').on('click', function() {
             console.log('insert');
-            var title = '';
-            var contents = '';
-            var author = '';
+            let title = '';
+            let contents = '';
+            let author = '';
+            let category = '';
             title = $('#title').val();
             contents = $('#contents').val();
             author = $('#author').val();
-            console.log(title + ', ' + contents + ', ' + author);
+            category = $('#category').val();
+            console.log(title + ', ' + contents + ', ' + author + ', ' + category);
 
             var boardData = {};
             boardData['title'] = title;
             boardData['contents'] = contents;
             boardData['author'] = author;
+            boardData['category'] = category;
             console.log(boardData);
 
 
@@ -60,13 +89,15 @@
             let contents = $('#contents').val();
             let author = $('#author').val();
             let seq = $('#seq').val();
-            console.log(seq + ', ' + title + ', ' + contents + ', ' + author);
+            let category = $('#category').val();
+            console.log(seq + ', ' + title + ', ' + contents + ', ' + author + ', ' + category);
 
             let boardData = {};
             boardData['title'] = title;
             boardData['contents'] = contents;
             boardData['author'] = author;
             boardData['seq'] = seq;
+            boardData['category'] = category;
             console.log(boardData);
 
             $.ajax({
@@ -115,6 +146,37 @@
 
     });
 
+    function getCategoryList(){
+        let codeData = {
+            grp_cd : 'CATEGORY'
+        }
+        $.ajax({
+            url: '/codes'
+            , type: 'GET'
+            , data: codeData
+            , contentType: 'application/json; charset=UTF-8'
+            , success: function (data) {
+                console.log(data);
+                //drawCategoryList(data);
+            }
+            , error: function (req, status, error) {
+                console.log(req + status + error);
+            }
+        });
+    }
+
+    function drawCategoryList(data) {
+        $('#category').empty();
+        let html = '';
+        html = '<option value="">카테고리</option>';
+
+        for (let i = 0; i < data.length; i++){
+            html += '<option value="' + data[i]['cd'] +'">'+ data[i]['cd_nm']+'</option>'
+        }
+
+        $('#category').html(html);
+    }
+
     function drawTable(data){
 
         let html = '';
@@ -125,7 +187,7 @@
 
             html += '<tr>';
             html += ' <td>' + item['seq']+'</td>';
-            html += ' <td>' + '</td>'; // 카테고리명을 표시하세요. (코드가 아닌 코드의 명칭)
+            html += ' <td>' + item['category_nm'] + '</td>'; // 카테고리명을 표시하세요. (코드가 아닌 코드의 명칭)
             html += ' <td>' + item['title']+'</td>';
             html += ' <td>' + item['contents']+'</td>';
             html += ' <td>' + item['author']+'</td>';
@@ -172,6 +234,15 @@
         </tbody>
     </table>
     <br/>
+    <span>총 건수 : </span><span id="cnt"></span>건
+    &nbsp;&nbsp;
+    <select id="row_cnt">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+    </select>
 
 </body>
 </html>

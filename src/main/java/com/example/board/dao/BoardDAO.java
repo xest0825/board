@@ -17,7 +17,22 @@ public class BoardDAO {
     private static final String SQL_PREFIX = "Board.";
 
     public List<HashMap<String, Object>> getItemList(Board vo) {
-        return sqlSession.selectList(SQL_PREFIX + "getItemList", vo);
+        if (vo.isPaging() == true){
+            int total_cnt = sqlSession.selectOne(SQL_PREFIX + "getItemCount", vo);
+            int max_page = total_cnt * 5;
+            vo.setOffset((vo.getCurrent_page() -1)* vo.getRow_cnt());
+            vo.setTotal_cnt(total_cnt);
+            vo.setTotal_page(max_page);
+            return sqlSession.selectList(SQL_PREFIX + "getItemListPaging", vo);
+        }
+        else {
+            return sqlSession.selectList(SQL_PREFIX + "getItemList", vo);
+        }
+
+    }
+
+    public HashMap<String, Object> getItemCount(Board vo) {
+        return sqlSession.selectOne(SQL_PREFIX + "getItemCount", vo);
     }
 
     public int insertItem(Board vo) {

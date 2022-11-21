@@ -1,0 +1,146 @@
+<html xmlns:tm="http://www.thymeleaf.org">
+<title>Home</title>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <style>
+        table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
+        tr {border:solid 1px black; border-collapse: collapse}
+        th {border:dotted 1px black; border-collapse: collapse}
+        td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
+    </style>
+    <script>
+        $(document).ready(function(){
+
+            $('#checkDupBtn').on('click', function(e){
+                console.log();
+            });
+
+            $('#checkBtn').on('click', function(e){
+                $('#contents').html('');
+                let html = '';
+                let hobbies = '';
+                $('input:checkbox[name=hobby]').each(function (index) {
+                    if($(this).is(":checked")==true){
+                        console.log($(this).val());
+                        hobbies += $(this).val() + ',';
+                    }
+                });
+                html += '고객 ID : ' + $('#cust_id').val() + '<br>';
+                html += '이름 : ' + $('#cust_name').val() + '<br>';
+                html += '성별 : ' + $('[name=gender]:checked').val() + '<br>';
+                html += '취미 : ' + hobbies + '<br>';
+                html += '지역 : ' + $('#region').val() + '<br>';
+                html += '인사말 : ' + $('#introduction').val() + '<br>';
+                $('#contents').html(html);
+            });
+
+            $('#saveBtn').on('click', function() {
+                console.log('save');
+                let cust = {};
+                let hobbies = '';
+                $('input:checkbox[name=hobby]').each(function (index) {
+                    if($(this).is(":checked")==true){
+                        console.log($(this).val());
+                        hobbies += $(this).val() + ',';
+                    }
+                });
+
+                cust['cust_id'] =  $('#cust_id').val();
+                cust['cust_name'] = $('#cust_name').val();
+                cust['gender'] = $('[name=gender]:checked').val();
+                cust['hobby'] = hobbies;
+                cust['region'] = $('#region').val();
+                cust['introduction'] = $('#introduction').val();
+                console.log(cust);
+
+                $.ajax({
+                    url: '/customers'
+                    , type: 'POST'
+                    , data: JSON.stringify(cust)
+                    , contentType: 'application/json; charset=UTF-8'
+                    , success: function (data) {
+                        console.log(data);
+                        if (data.result == 'OK') {
+                            alert('저장되었습니다. ');
+                        } else {
+                            alert('저장되지 않았습니다. ');
+                        }
+
+                    }
+                    , error: function (req, status, error) {
+                        console.log(req + status + error);
+                    }
+                });
+
+            });
+
+
+        });
+    </script>
+</head>
+
+<body>
+    <h2>등록하세요. 냉큼</h2>
+    <table>
+        <thead>
+            <th>구분</th>
+            <td>내용</td>
+        </thead>
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>
+                    <input id="cust_id" type="text">
+                    <button id="checkDupBtn">중복획인</button>
+                    <button id="searchBtn">고객조회</button>
+                </td>
+            </tr>
+            <tr>
+                <th>이름</th>
+                <td><input id="cust_name" type="text"></td>
+            </tr>
+            <tr>
+                <th>성별</th>
+                <td>
+                    <input type="radio" id="gender1" name="gender" value="M" checked><label for="gender1">남자</label>
+                    <input type="radio" id="gender2" name="gender" value="W" ><label for="gender2">여자</label>
+                </td>
+            </tr>
+            <tr>
+                <th>취미</th>
+                <td>
+                    <input type="checkbox" id="hobby1" name="hobby" value="1" checked><label for="hobby1">골프</label>
+                    <input type="checkbox" id="hobby2" name="hobby" value="2"><label for="hobby2">영화</label>
+                    <input type="checkbox" id="hobby3" name="hobby" value="3"><label for="hobby3">코딩</label>
+                </td>
+            </tr>
+            <tr>
+                <th>지역</th>
+                <td>
+                    <select id="region">
+                        <option value="1">서울</option>
+                        <option value="2" selected>경기</option>
+                        <option value="3">울산</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>인사말</th>
+                <td><textarea type="textarea" id="introduction" style="min-height:40px;"></textarea></td>
+            </tr>
+            <tr>
+                <th>파일첨부</th>
+                <td><input type="file" id="file_id"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <button id="checkBtn">확인</button>
+    <button id="saveBtn">저장</button>
+    <br>
+    <div id="contents" style="margin-top:10px;border:1px solid black;min-height:20px;padding: 5px;">
+    </div>
+</body>
+</html>

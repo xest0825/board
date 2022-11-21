@@ -25,4 +25,18 @@ public class PageController {
         return mv;
     }
 
+    @GetMapping("/app-test")
+    public ModelAndView goAppTest(HttpServletRequest req) {
+        log.info("/app-test");
+        ModelAndView mv = new ModelAndView("app_test");
+        return mv;
+    }
+
+    @GetMapping("/join")
+    public ModelAndView goJoin(HttpServletRequest req) {
+        log.info("/join");
+        ModelAndView mv = new ModelAndView("join");
+        return mv;
+    }
+
 }

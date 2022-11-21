@@ -20,13 +20,21 @@ public class BoardRestController {
     private BoardService service;
 
     @GetMapping("/items")
-    public ResponseEntity<List<HashMap<String, Object>>> getBoardItems() {
+    public ResponseEntity<List<HashMap<String, Object>>> getBoardItems(Board vo) {
         log.info("/items");
         List list = new ArrayList<HashMap<String, Object>>();
-        Board vo = new Board();
         list = service.getItemList(vo);
 
         ResponseEntity<List<HashMap<String, Object>>> ret = new ResponseEntity<>(list, HttpStatus.OK);
+        return ret;
+    };
+
+    @GetMapping("/items-count")
+    public ResponseEntity<HashMap<String, Object>> getBoardItemsCount(Board vo) {
+        log.info("/items-count");
+        HashMap<String, Object> retmap = service.getItemCount(vo);
+
+        ResponseEntity<HashMap<String, Object>> ret = new ResponseEntity<>(retmap, HttpStatus.OK);
         return ret;
     };
 

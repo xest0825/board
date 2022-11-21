@@ -18,6 +18,10 @@ public class BoardService {
         return dao.getItemList(vo);
     }
 
+    public HashMap<String, Object> getItemCount(Board vo){
+        return dao.getItemCount(vo);
+    }
+
     public int insertItem(Board vo) {
         return dao.insertItem(vo);
     }

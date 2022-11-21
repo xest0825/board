@@ -1,0 +1,32 @@
+<html xmlns:tm="http://www.thymeleaf.org">
+<title>Home</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="/js/jquery-3.6.0.min.js"></script>
+<script src="/js/table-pagination.js"></script>
+<style>
+    table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
+    tr {border:solid 1px black; border-collapse: collapse}
+    th {border:dotted 1px black; border-collapse: collapse}
+    td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
+</style>
+<script>
+    $(document).ready(function(){
+
+        $('#andBtn').on('click', function(){
+            location.href="intent://instagram.com/#Intent;package=com.instagram.android;scheme=https;end"
+        });
+
+        $('#iosBtn').on('click', function(){
+
+        });
+
+
+    });
+</script>
+<body>
+    <br><br>
+    <button id="andBtn">라이나M 안드로이드</button>
+    <button id="iosBtn">라이나M 아이폰</button>
+
+</body>
+</html>

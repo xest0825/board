@@ -8,17 +8,46 @@
         <include refid="getItemListSql" />
     </select>
 
+    <select id="getItemCount" parameterType="com.example.board.vo.Board" resultType="int">
+        /* board-mapper.xml getItemCount 게시글 갯수 조회 */
+        SELECT COUNT(*) cnt
+          FROM (<include refid="getItemListSql"/> ) a
+    </select>
+
+    <select id="getItemListPaging" parameterType="com.example.board.vo.Board" resultType="Hmap">
+        /* board-mapper.xml getItemCount 게시글 갯수 조회 */
+        select ${total_cnt} as total_cnt
+              , ${max_page} as max_page
+         FROM (
+        <include refid="getItemListSql"/> ) a
+        LIMIT ${offset}, ${row_cnt}
+    </select>
+
     <sql id="getItemListSql">
           SELECT tb1.seq
                , tb1.title
                , tb1.contents
                , tb1.author
+               , tb1.category
+               , tb2.cd_nm category_nm
                , DATE_FORMAT(tb1.reg_dtm, '%Y-%m-%d %H:%i:%s') reg_dtm
                , DATE_FORMAT(tb1.up_dtm, '%Y-%m-%d %H:%i:%s') up_dtm
             FROM tb_item  tb1
+            LEFT OUTER JOIN tb_code tb2
+              ON tb1.category = tb2.cd
+             AND tb2.grp_cd = 'CATEGORY'
         <where>
             <if test='@com.example.util.CommonUtil@isNotEmpty(seq)'>
              AND tb1.seq = #{seq}
+            </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(category)'>
+                AND tb1.category = #{category}
+            </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(title)'>
+                AND UPPER(tb1.title) LIKE CONCAT('%', UPPER(#{title}), '%')
+            </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(contents)'>
+                AND UPPER(tb1.contents) LIKE CONCAT('%', UPPER(#{contents}), '%')
             </if>
         </where>
     </sql>
@@ -31,6 +60,7 @@
                title
              , contents
              , author
+             , category
              , reg_dtm
              )
         VALUES
@@ -38,6 +68,7 @@
                #{title}
              , #{contents}
              , #{author}
+             , #{category}
              , NOW()
              )
     </insert>
@@ -54,6 +85,9 @@
             </if>
             <if test='@com.example.util.CommonUtil@isNotEmpty(author)'>
             , author = #{author}
+            </if>
+            <if test='@com.example.util.CommonUtil@isNotEmpty(category)'>
+            , category = #{category}
             </if>
          WHERE seq = #{seq}
     </update>
