@@ -22,6 +22,20 @@ public class CustomerRestController {
     @Autowired
     private CustomerService service;
 
+    @GetMapping("/customers/{cust_id}")
+    public ResponseEntity<HashMap<String, Object>> getCustomer(Customer vo, @PathVariable String cust_id) {
+        log.info("/customers/" + cust_id);
+        vo.setCust_id(cust_id);
+        HashMap<String, Object> map = service.getCustomer(vo);
+        if (map.get("cust_id") != null) {
+            map.put("result", "OK");
+        } else {
+            map.put("result", "FAIL");
+        }
+        ResponseEntity<HashMap<String, Object>> ret = new ResponseEntity<>(map, HttpStatus.OK);
+        return ret;
+    };
+
     @GetMapping("/customer-id-count")
     public ResponseEntity<HashMap<String, Object>> get(Customer vo) {
         log.info("/customer-id-count");

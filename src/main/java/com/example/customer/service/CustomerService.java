@@ -27,6 +27,16 @@ public class CustomerService {
         return ret;
     }
 
+    public HashMap<String, Object> getCustomer(Customer vo){
+        int ret = 0;
+        HashMap<String, Object> retMap = new HashMap<String, Object>();
+        List<HashMap<String, Object>> list = dao.getCustomerList(vo);
+        if (list.size() > 0) {
+            retMap = list.get(0);
+        }
+        return retMap;
+    }
+
     public int insertCustomer(Customer vo) {
         return dao.insertCustomer(vo);
     }

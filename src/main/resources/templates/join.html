@@ -1,4 +1,5 @@
-<html xmlns:tm="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tm="http://www.thymeleaf.org">
 <title>Home</title>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -16,6 +17,32 @@
                 console.log();
             });
 
+            $('#searchBtn').on('click', function(e){
+                let cust_id = $('#cust_id').val();
+                if (cust_id == ''){
+                    alert('ID는 와 입력안하노?');
+                    return;
+                }
+                $.ajax({
+                    url: '/customers' + '/' + cust_id
+                    , type: 'GET'
+                    , data: {cust_id : cust_id}
+                    , contentType: 'application/json; charset=UTF-8'
+                    , success: function (data) {
+                        console.log(data);
+                        if (data.result == 'OK') {
+                            console.log('조회성공');
+                            fillCustomerDetails(data);
+                        } else {
+                            console.log('조회실패');
+                        }
+                    }
+                    , error: function (req, status, error) {
+                        console.log(req + status + error);
+                    }
+                });
+            });
+
             $('#checkBtn').on('click', function(e){
                 $('#contents').html('');
                 let html = '';
@@ -26,7 +53,7 @@
                         hobbies += $(this).val() + ',';
                     }
                 });
-                html += '고객 ID : ' + $('#cust_id').val() + '<br>';
+                html += '고객 ID : ' + $('#cust_id').val() + '<br>';f
                 html += '이름 : ' + $('#cust_name').val() + '<br>';
                 html += '성별 : ' + $('[name=gender]:checked').val() + '<br>';
                 html += '취미 : ' + hobbies + '<br>';
@@ -77,6 +104,22 @@
 
 
         });
+
+        function fillCustomerDetails(data){
+            $('#cust_name').val(data.cust_name);
+            if(data.gender == 'M'){
+                $('#gender1').prop('checked', true);
+            } else if (data.gender == 'W') {
+                $('#gender2').prop('checked', true);
+            }
+            let hobbies = data.hobby.split(',');
+            for (let i = 0; i<hobbies.length; i++){
+                console.log(hobbies[i]);
+                $('#hobby' + hobbies[i]).prop('checked', true);
+            }
+            $('#region').val(data.region);
+            $('#introduction').text(data.introduction);
+        }
     </script>
 </head>
 
@@ -91,7 +134,7 @@
             <tr>
                 <th>ID</th>
                 <td>
-                    <input id="cust_id" type="text">
+                    <input id="cust_id" type="text" th:value="${cust_id}">
                     <button id="checkDupBtn">중복획인</button>
                     <button id="searchBtn">고객조회</button>
                 </td>
