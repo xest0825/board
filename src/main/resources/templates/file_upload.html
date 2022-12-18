@@ -102,6 +102,9 @@
 
             });
 
+            $('#fileUploadBtn').on('click', function(){
+               uploadFile();
+            });
 
         });
 
@@ -112,40 +115,61 @@
             } else if (data.gender == 'W') {
                 $('#gender2').prop('checked', true);
             }
-
-
             let hobbies = data.hobby.split(',');
             for (let i = 0; i<hobbies.length; i++){
                 console.log(hobbies[i]);
-                //
-                console.log($('#hobby1'))
-                console.log($('input[name=hobby]').length);
-                let hobby_elems = $('input[name=hobby]');
-                let len = $('input[name=hobby]').length;
-                /*
-                for (let j = 0; j<hobby_elems.length; j++){
-                    console.log(hobby_elems[j]);
-                    console.log(hobby_elems[j].value);
-                    console.log('----');
-                    if (hobbies[i] == hobby_elems[j].value) {
-                        //$().prop('checked', true);
-                        console.log('같음 배열안 ' + i + ", " + j);
-                        console.log(hobby_elems[j].id);
-                        $('#' + hobby_elems[j].id).prop('checked', true);
-                    }
-
-                }
-                */
-
-                $("input[name='hobby'][value="+ hobbies[i]+"]").prop("checked", true);
+                $('#hobby' + hobbies[i]).prop('checked', true);
             }
-
-
-
-
-
             $('#region').val(data.region);
             $('#introduction').text(data.introduction);
+        }
+
+        function uploadFile(){
+            var form = new FormData();
+            form.append( "file", $("#file")[0].files[0] );
+
+            jQuery.ajax({
+                url : "/upload"
+                , type : "POST"
+                , processData : false
+                , contentType: false
+                , data : form
+                , success:function(response) {
+                    console.log("성공");
+                    console.log(response);
+                    $('#file_id').val(response.file_id);
+                    getFileInfo();
+                }
+                ,error: function (jqXHR)
+                {
+                    console.log(jqXHR.responseText);
+                }
+            });
+
+        }
+
+        function getFileInfo(){
+            let file_id = $('#file_id').val();
+            $.ajax({
+                url: '/files-info/' + file_id
+                , type: 'GET'
+                , data: {file_id : file_id}
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                    if (data.result == 'OK') {
+                        console.log('조회성공');
+                        console.log(data);
+                        $('#file_path').text(data.file_path);
+                        $('#profile_img').attr("src", "/resources/" + data.file_name);
+                    } else {
+                        console.log('조회실패');
+                    }
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
         }
     </script>
 </head>
@@ -201,9 +225,18 @@
             </tr>
             <tr>
                 <th>파일첨부</th>
-                    <form action="/upload" method="POST" enctype="multipartform-data">
-                    <td><input type="file" id="file_id"></td>
-                    </form>
+
+                    <td>
+                        <form action="/upload" method="POST" enctype="multipart/form-data">
+                        <input type="file" name="file" id="file"><button type="submit">파일올리기</button>
+                        </form>
+                        <input type="hidden" id="file_id">
+                        <span id="file_path"></span>
+                        <img id="profile_img" style="width:36px;height:36px;"></img>
+                        <button id="fileUploadBtn" >파일올리기(AJAX)</button>
+                        <img id="default_profile_img" style="width:36px;height:36px;" src="/img/profile.png">
+                    </td>
+
             </tr>
         </tbody>
     </table>
@@ -213,6 +246,19 @@
     <button id="saveBtn">저장</button>
     <br>
     <div id="contents" style="margin-top:10px;border:1px solid black;min-height:20px;padding: 5px;">
+    </div>
+    <div>
+        <pre>
+        - 파일 관리는 물리파일 관리와 파일 정보 관리로 이루어진다.
+        - 파일 정보
+           파일의 원래 이름, 저장하는(저장된) 이름, 확장자, 파일크기, 파일이 저장되는 경로
+        - 파일업로드
+            업로드되고나면 파일명 보여주기/미리보기
+        - 파일다운로드
+            업로드된 파일을 다운로드
+            프로젝트에 포함된 파일을 다운로드(또는 프로젝트에 포함된 파일을 활용하여 다운로드할 파일을 생성, 엑셀다운로드, pdf다운로드 등)
+        </pre>
+
     </div>
 </body>
 </html>

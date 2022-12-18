@@ -3,7 +3,7 @@
 
 <mapper namespace="Customer">
 
-    <select id="getCustomerList" parameterType="com.example.customer.vo.Customer" resultType="Hmap">
+    <select id="getCustomerList" parameterType="kr.devsnote.customer.CustomerVO" resultType="Hmap">
         /* customer-mapper.xml getCustomerList 고객 목록 조회 */
         SELECT cust_id      /* varchar(50) primary key comment 'id' */
              , cust_name    /*  varchar(100)  comment '고객명' */
@@ -18,13 +18,13 @@
              , up_dtm       /* datetime default now() comment '수정일시' */
         FROM tb_customer tb1
         <where>
-        <if test='@com.example.util.CommonUtil@isNotEmpty(cust_id)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(cust_id)'>
          AND tb1.cust_id = #{cust_id}
         </if>
         </where>
     </select>
 
-    <insert id="insertCustomer" parameterType="com.example.customer.vo.Customer" >
+    <insert id="insertCustomer" parameterType="kr.devsnote.customer.CustomerVO" >
         /* customer-mapper.xml insertCustomer 고객 압력 */
        INSERT
          INTO tb_customer
@@ -55,7 +55,7 @@
             )
     </insert>
 
-    <update id="updateCustomer" parameterType="com.example.customer.vo.Customer" >
+    <update id="updateCustomer" parameterType="kr.devsnote.customer.CustomerVO" >
         /* customer-mapper.xml updateCustomer 고객수정 */
         UPDATE tb_customer
            SET cust_name    = #{cust_name}    /*  varchar(100)  comment '고객명' */
@@ -69,7 +69,7 @@
         WHERE cust_id = #{cust_id}      /* varchar(50) primary key comment 'id' */
     </update>
 
-    <delete id="deleteCustomer" parameterType="com.example.customer.vo.Customer" >
+    <delete id="deleteCustomer" parameterType="kr.devsnote.customer.CustomerVO" >
         /* customer-mapper.xml updateCustomer 고객수정 */
         DELETE FROM tb_customer
          WHERE cust_id = #{cust_id}      /* varchar(50) primary key comment 'id' */

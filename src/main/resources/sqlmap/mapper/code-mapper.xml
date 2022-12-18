@@ -3,7 +3,7 @@
 
 <mapper namespace="Code">
 
-    <select id="getCodeList" parameterType="com.example.code.vo.Code" resultType="Hmap">
+    <select id="getCodeList" parameterType="kr.devsnote.code.CodeVO" resultType="Hmap">
         /* code-mapper.xml getCodeList  코드 조회 */
         <include refid="getCodeListSql" />
     </select>
@@ -21,13 +21,13 @@
               ON tb1.grp_cd = tb2.grp_cd
         <where>
                  1 = 1
-            <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(grp_cd)'>
              AND tb1.grp_cd = #{grp_cd}
             </if>
-            <if test='@com.example.util.CommonUtil@isNotEmpty(cd)'>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(cd)'>
              AND tb1.cd = #{cd}
             </if>
-            <if test='@com.example.util.CommonUtil@isNotEmpty(search_word)'>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(search_word)'>
              AND (   UPPER(tb1.grp_cd) LIKE CONCAT('%', UPPER(#{search_word}), '%')
                   OR UPPER(tb1.cd)     LIKE CONCAT('%', UPPER(#{search_word}), '%')
                   OR UPPER(tb1.cd_nm)  LIKE CONCAT('%', UPPER(#{search_word}), '%')
@@ -37,7 +37,7 @@
         </where>
     </sql>
 
-    <insert id="insertCode" parameterType="com.example.code.vo.Code">
+    <insert id="insertCode" parameterType="kr.devsnote.code.CodeVO">
         /* code-mapper.xml insertCode 코드 입력 */
         INSERT
           INTO tb_code
@@ -58,34 +58,34 @@
              )
     </insert>
 
-    <update id="updateCode" parameterType="com.example.code.vo.Code">
+    <update id="updateCode" parameterType="kr.devsnote.code.CodeVO">
         /* code-mapper.xml updateCode 코드 수정 */
         UPDATE tb_code
            SET in_dtm = NOW()
-        <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(grp_cd)'>
              , grp_cd = #{grp_cd}
         </if>
-        <if test='@com.example.util.CommonUtil@isNotEmpty(cd)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(cd)'>
              , cd = #{cd}
         </if>
-        <if test='@com.example.util.CommonUtil@isNotEmpty(cd_nm)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(cd_nm)'>
             , cd_nm = #{cd_nm}
         </if>
-        <if test='@com.example.util.CommonUtil@isNotEmpty(sort_no)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(sort_no)'>
             , sort_no = #{sort_no}
         </if>
         WHERE grp_cd = #{grp_cd}
           AND cd = #{cd}
     </update>
 
-    <delete id="deleteCode" parameterType="com.example.code.vo.Code">
+    <delete id="deleteCode" parameterType="kr.devsnote.code.CodeVO">
         /* code-mapper.xml deleteCode 코드 삭제 */
         DELETE FROM tb_code
          WHERE grp_cd = #{grp_cd}
            AND cd = #{cd}
     </delete>
 
-    <select id="getGroupCodeList" parameterType="com.example.code.vo.Code" resultType="Hmap">
+    <select id="getGroupCodeList" parameterType="kr.devsnote.code.CodeVO" resultType="Hmap">
         /* code-mapper.xml getGroupCodeList  그룹 코드 조회 */
         <include refid="getGroupCodeListSql" />
     </select>
@@ -98,13 +98,13 @@
         FROM tb_code_group tb1
         <where>
             1 = 1
-            <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(grp_cd)'>
                 AND tb1.grp_cd = #{grp_cd}
             </if>
-            <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd_nm)'>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(grp_cd_nm)'>
                 AND tb1.grp_cd_nm = #{grp_cd_nm}
             </if>
-            <if test='@com.example.util.CommonUtil@isNotEmpty(search_word)'>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(search_word)'>
                 AND (   UPPER(tb1.grp_cd) LIKE CONCAT('%', UPPER(#{search_word}), '%')
                 OR UPPER(tb1.grp_cd_nm)  LIKE CONCAT('%', UPPER(#{search_word}), '%')
                 )
@@ -113,7 +113,7 @@
         </where>
     </sql>
 
-    <insert id="insertGroupCode" parameterType="com.example.code.vo.Code">
+    <insert id="insertGroupCode" parameterType="kr.devsnote.code.CodeVO">
         /* code-mapper.xml insertCode 그룹 코드 입력 */
        INSERT
          INTO tb_code_group
@@ -132,24 +132,24 @@
             )
     </insert>
 
-    <update id="updateGroupCode" parameterType="com.example.code.vo.Code">
+    <update id="updateGroupCode" parameterType="kr.devsnote.code.CodeVO">
         /* code-mapper.xml updateGroupCode 그룹 코드 수정 */
         UPDATE tb_code_group
         SET in_dtm = NOW()
-        <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(grp_cd)'>
             , grp_cd = #{grp_cd}
         </if>
-        <if test='@com.example.util.CommonUtil@isNotEmpty(grp_cd_nm)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(grp_cd_nm)'>
             , grp_cd_nm = #{grp_cd_nm}
         </if>
-        <if test='@com.example.util.CommonUtil@isNotEmpty(sort_no)'>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(sort_no)'>
             , sort_no = #{sort_no}
         </if>
         WHERE grp_cd = #{grp_cd}
         AND cd = #{cd}
     </update>
 
-    <delete id="deleteGroupCode" parameterType="com.example.code.vo.Code">
+    <delete id="deleteGroupCode" parameterType="kr.devsnote.code.CodeVO">
         /* code-mapper.xml deleteGroupCode 그룹 코드 삭제 */
         DELETE FROM tb_code_group
         WHERE grp_cd = #{grp_cd}

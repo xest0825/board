@@ -1,0 +1,226 @@
+<html xmlns:tm="http://www.thymeleaf.org">
+<title>Home</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="/js/jquery-3.6.0.min.js"></script>
+<script src="/js/jquery.fileDownload.js"></script>
+<script src="/js/table-pagination.js"></script>
+<style>
+    table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
+    tr {border:solid 1px black; border-collapse: collapse}
+    th {border:dotted 1px black; border-collapse: collapse}
+    td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
+</style>
+<script>
+    $(document).ready(function(){
+
+        $('#searchBtn').on('click', function(){
+            console.log('search');
+            let file_id = $('#file_id').val();
+            let org_file_name = $('#org_file_name').val();
+            let file_ext = $('#file_ext').val();
+            let search_word = $('#search_word').val();
+
+            let fileInfo = {};
+            fileInfo['file_id'] = file_id;
+            fileInfo['org_file_name'] = org_file_name;
+            fileInfo['file_ext'] = file_ext;
+            fileInfo['search_word'] = search_word;
+            console.log(fileInfo);
+            $.ajax({
+                url: '/files-info'
+                , type: 'GET'
+                , data: fileInfo
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                    drawTable(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+        });
+
+        $('#downlaodExcelBtn').on('click', function(){
+            downloadExcel();
+        });
+
+        $('#initBtn').on('click', function(){
+            console.log('init');
+        });
+
+    });
+
+    function drawTable(data){
+
+        let html = '';
+        if (data.length == 0) {
+            html += '<tr><td colspan="5" style="text-align:center;">조회된 결과가 없습니다. </td></tr>';
+            $('#tb1').html(html);
+        } else {
+            for (let i = 0; i < data.length; i++) {
+
+                let fileInfo = {};
+                fileInfo = data[i];
+                //console.log(fileInfo);
+
+                html += '<tr>';
+                html += ' <td>' + fileInfo['file_id'] + '</td>';
+                html += ' <td>' + fileInfo['org_file_name'] + '</td>';
+                html += ' <td><a href="javascript:download(\'' + fileInfo['file_id']+ '\');">' + fileInfo['file_path'] + '</a></td>';
+                html += ' <td>' + fileInfo['in_id'] + '</td>';
+                html += ' <td>' + fileInfo['in_dtm'] + '</td>';
+                html += ' <td>' + fileInfo['system_type'] + '</td>';
+                html += ' <td><button onclick="deleteFile(\'' + fileInfo['file_id']+ '\')">삭제</button></td>';
+                html += '</tr>';
+
+                $('#tb1').html(html);
+            }
+        }
+
+        $("#tb").createTablePagination({
+            rowPerPage: 10,
+            // paginationColor: '#FFA4B6',
+            paginationColor: '#6F7AD7',
+            fontColor: '#0B1354',
+            paginationStyle: 'Borderless',
+            jumpPage: 'Disabled'
+        });
+    }
+
+    function downloadExcel(){
+        console.log('엑셀다운로드');
+        console.log('search');
+        let file_id = $('#file_id').val();
+        let org_file_name = $('#org_file_name').val();
+        let file_ext = $('#file_ext').val();
+        let search_word = $('#search_word').val();
+        let excel_path = 'DEFAULT.xlsx';
+
+        let fileInfo = {};
+        fileInfo['file_id'] = file_id;
+        fileInfo['org_file_name'] = org_file_name;
+        fileInfo['file_ext'] = file_ext;
+        fileInfo['search_word'] = search_word;
+        fileInfo['excel_path'] = excel_path;
+        console.log(fileInfo);
+
+        excelDown("#excelForm", fileInfo);
+    }
+
+    function download(file_id) {
+        /*
+        let fileInfo = {}
+        fileInfo['file_path'] = file_path;
+        $.ajax({
+            url: '/download'
+            , type: 'GET'
+            , data: fileInfo
+            , contentType: 'application/json; charset=UTF-8'
+            , success: function (data) {
+                console.log(data);
+            }
+            , error: function (req, status, error) {
+                console.log(req + status + error);
+            }
+        });
+        */
+        location.href = '/download?file_id=' + file_id;
+    }
+
+    function deleteFile(file_id){
+        let fileInfo = {}
+        fileInfo['file_id'] = file_id;
+        $.ajax({
+            url: '/files-info/' + file_id
+            , type: 'DELETE'
+            , data: JSON.stringify(fileInfo)
+            , contentType: 'application/json; charset=UTF-8'
+            , success: function (data) {
+                console.log(data);
+                $('#searchBtn').trigger('click');
+            }
+            , error: function (req, status, error) {
+                console.log(req + status + error);
+            }
+        });
+
+    }
+    //엑셀다운로드 ajax
+    function excelDown(formId, data) {
+        if(data.excel_path == null || data.excel_path == undefined || data.excel_path == "") {
+            data.excel_path = "DEFAULT.xlsx";
+        }
+
+        $.fileDownload($(formId).prop('action'), {
+            httpMethod: "POST",
+            data: data,
+            contentType: "application/json; charset=UTF-8",
+            prepareCallback: function() {
+                //kendo.ui.progress($("body"), true);
+            },
+            successCallback: function (url) {
+                //kendo.ui.progress($("body"), false);
+            },
+            failCallback: function(responesHtml, url) {
+                //kendo.ui.progress($("body"), false);
+                alert('알 수 없는 에러가 발생하였습니다. 관리자에게 문의 해주세요.');
+            }
+        });
+    }
+
+    function fileDownload(formId, data) {
+        $.fileDownload($(formId).prop('action'), {
+            httpMethod: "POST",
+            data: data,		//없애지 말 것
+            prepareCallback: function(seq) {
+                //kendo.ui.progress($("body"), true);
+            },
+            successCallback: function (url) {
+                // kendo.ui.progress($("body"), false);
+            },
+            failCallback: function(responesHtml, url) {
+                // kendo.ui.progress($("body"), false);
+                alert('알 수 없는 에러가 발생하였습니다. 관리자에게 문의 해주세요.');
+            }
+        });
+    }
+
+</script>
+<body>
+<form id="excelForm" name="excelForm" method="post" action="/files-info-excel"></form>
+    <input id="search_word" type="text" placeholder="검색어 (파일명|파일 ID)" style="width:200px;">
+    <input id="file_id" type="text" placeholder="파일ID">
+    <input id="org_file_name" type="text" placeholder="원 파일명">
+    <input id="file_ext" type="text" placeholder="파일확장자">
+    <button id="searchBtn">조회</button>
+    <button id="initBtn">초기화</button>
+    <button id="downlaodExcelBtn">엑셀다운로드</button>
+
+    <table id="tb">
+        <colgroup>
+            <col style="width:15%;"/>
+            <col style="width:15%;"/>
+            <col style="width:30%;"/>
+            <col style="width:10%;"/>
+            <col style="width:10%;"/>
+            <col style="width:10%;"/>
+            <col style="width:10%;"/>
+        </colgroup>
+        <thead style="background-color:#6F7AD7;color:#eaeaea;">
+            <th>파일ID</th>
+            <th>원 파일명</th>
+            <th>파일경로</th>
+            <th>입력자</th>
+            <th>입력일시</th>
+            <th>시스템구분</th>
+            <th>Edit</th>
+        </thead>
+        <tbody id="tb1">
+
+        </tbody>
+    </table>
+    <br/>
+
+</body>
+</html>

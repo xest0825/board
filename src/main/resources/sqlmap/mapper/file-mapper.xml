@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="File">
+
+    <sql id="selectFileInfoListSql">
+           SELECT file_id          /* varchar(40) PK comment '파일id' */
+                , org_file_name    /* varchar(256) comment '원 파일이름' */
+                , file_name        /* varchar(256) comment '저장 파일이름' */
+                , file_path        /* varchar(512) comment '파일경로' */
+                , file_ext         /* varchar(10) comment '파일확장자' */
+                , file_size        /* varchar(20) comment '파일크기' */
+                , in_id            /* varchar(50) comment '입력자 id ' */
+                , DATE_FORMAT(in_dtm, '%Y-%m-%d %H:%i:%s') in_dtm /* datetime comment '입력일시' */
+                , up_id            /* varchar(50) comment '수정자 id' */
+                , DATE_FORMAT(up_dtm, '%Y-%m-%d %H:%i:%s') up_dtm /* datetime default now() comment '수정일시' */
+                , system_type
+             FROM tb_file_info tb1
+        <where>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(file_id)'>
+              AND tb1.file_id = #{file_id}
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(search_word)'>
+              AND (  UPPER(tb1.file_id) LIKE CONCAT('%', UPPER(TRIM(#{search_word})), '%')
+                  OR UPPER(tb1.org_file_name) LIKE CONCAT('%', UPPER(TRIM(#{search_word})), '%')
+                  )
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(system_type)'>
+                AND tb1.system_type = #{system_type}
+            </if>
+        </where>
+        ORDER BY in_dtm DESC
+    </sql>
+
+    <select id="getFileInfoList" parameterType="kr.devsnote.file.FileVO" resultType="Hmap">
+        /* file-mapper.xml getFileInfoList */
+        <include refid="selectFileInfoListSql"></include>
+    </select>
+
+    <select id="getFileInfo" parameterType="kr.devsnote.file.FileVO" resultType="Hmap">
+        /* file-mapper.xml getFileInfo */
+        <include refid="selectFileInfoListSql"></include>
+    </select>
+
+    <insert id="insertFileInfo" parameterType="kr.devsnote.file.FileVO" >
+        /* file-mapper.xml insertFileInfo */
+        INSERT
+          INTO tb_file_info
+             ( file_id          /* varchar(40) PK comment '파일id' */
+             , org_file_name    /* varchar(256) comment '원 파일이름' */
+             , file_name        /* varchar(256) comment '저장 파일이름' */
+             , file_path        /* varchar(512) comment '파일경로' */
+             , file_ext         /* varchar(10) comment '파일확장자' */
+             , file_size        /* varchar(20) comment '파일크기' */
+             , in_id            /* varchar(50) comment '입력자 id ' */
+             , in_dtm           /* datetime comment '입력일시' */
+             , up_id            /* varchar(50) comment '수정자 id' */
+             , up_dtm           /* datetime default now() comment '수정일시' */
+             , system_type
+             )
+        VALUES
+             ( #{file_id}          /* varchar(40) PK comment '파일id' */
+             , #{org_file_name}    /* varchar(256) comment '원 파일이름' */
+             , #{file_name}        /* varchar(256) comment '저장 파일이름' */
+             , #{file_path}        /* varchar(512) comment '파일경로' */
+             , #{file_ext}         /* varchar(10) comment '파일확장자' */
+             , #{file_size}        /* varchar(20) comment '파일크기' */
+             , #{in_id}            /* varchar(50) comment '입력자 id ' */
+             , NOW()              /* datetime comment '입력일시' */
+             , #{up_id}            /* varchar(50) comment '수정자 id' */
+             , NOW()              /* datetime default now() comment '수정일시' */
+             , #{system_type}
+             )
+    </insert>
+
+    <update id="updateFileInfo" parameterType="kr.devsnote.file.FileVO" >
+        /* file-mapper.xml updateFileInfo */
+        UPDATE tb_file_info
+           SET up_dtm           = NOW()             /* datetime default now() comment '수정일시' */
+             , org_file_name    = #{org_file_name}  /* varchar(256) comment '원 파일이름' */
+             , file_name        = #{file_name}      /* varchar(256) comment '저장 파일이름' */
+             , file_path        = #{file_path}      /* varchar(512) comment '파일경로' */
+             , file_ext         = #{file_ext}       /* varchar(10) comment '파일확장자' */
+             , file_size        = #{file_size}      /* varchar(20) comment '파일크기' */
+             , up_id            = #{up_id}          /* varchar(50) comment '수정자 id' */
+             , system_type      = #{system_type}
+         WHERE file_id = #{file_id}
+    </update>
+
+    <delete id="deleteFileInfo" parameterType="kr.devsnote.file.FileVO">
+        /* file-mapper.xml deleteFileInfo */
+        DELETE FROM tb_file_info
+         WHERE file_id = #{file_id}
+    </delete>
+
+
+</mapper>

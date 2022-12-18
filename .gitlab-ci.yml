@@ -1,0 +1,101 @@
+variables:
+  VERSION_BASE: "1.0"
+  GITLAB_REGISTRY: git.devsnote.kr
+  GITLAB_PROJECT_PATH: research/board
+  VERSION: ${VERSION_BASE}.${CI_PIPELINE_IID}
+  GIT_SUBMODULE_STRATEGY: recursive
+  SERVICE_NAME_BASE: board
+
+stages:
+  - build
+  - dev
+  - prod
+
+build:
+  image: docker:20.10
+  stage: build
+  tags:
+    - docker
+    - build
+  only:
+    - dev
+    - master
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${GITLAB_REGISTRY}
+    - DOCKER_IMAGE=${GITLAB_REGISTRY}/${GITLAB_PROJECT_PATH}/${SERVICE_NAME_BASE}:${VERSION_BASE}.${CI_PIPELINE_IID}
+    - docker build -t ${DOCKER_IMAGE} .
+    - docker push ${DOCKER_IMAGE}
+
+deploy/dev:
+  image: docker:20.10
+  stage: dev
+  environment:
+    name: development
+    url: https://dev-board.devsnote.kr
+  tags:
+    - board-dev
+  dependencies: []
+  only:
+    - dev
+  variables:
+    STAGE: "dev"
+  before_script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${GITLAB_REGISTRY}
+    - DOCKER_IMAGE=${GITLAB_REGISTRY}/${GITLAB_PROJECT_PATH}/${SERVICE_NAME_BASE}:${VERSION_BASE}.${CI_PIPELINE_IID}
+    - CONTAINER_NAME=${SERVICE_NAME_BASE}.dev
+  script:
+    - docker pull ${DOCKER_IMAGE}
+    - docker stop ${CONTAINER_NAME} || true && docker rm ${CONTAINER_NAME} || true
+    - docker run -d --restart=unless-stopped --name ${CONTAINER_NAME}
+      --log-opt max-size=100m
+      --network=board-net
+      -v /home/centos/${CONTAINER_NAME}/logs:/usr/local/tomcat/logs
+      -v /home/centos/fileStorage/files:/usr/local/tomcat/fileStorage/files
+      -v /home/centos/fileStorage/upload:/usr/local/tomcat/fileStorage/upload
+      -v /home/centos/fileStorage/temp:/usr/local/tomcat/fileStorage/temp
+      -e STAGE=${STAGE}
+      -e ELASTIC_APM_ENABLED=true
+      -e ELASTIC_APM_SERVER_URLS=http://218.237.51.75:8200
+      -e ELASTIC_APM_ENVIRONMENT=${STAGE}
+      -e ELASTIC_APM_SERVICE_NAME=board_dev
+      -e ELASTIC_APM_APPLICATION_PACKAGES=devsnote
+      -e TZ=Asia/Seoul
+      ${DOCKER_IMAGE}
+
+deploy/prod:
+  image: docker:20.10
+  stage: prod
+  environment:
+    name: production
+    url: https://board.devsnote.kr
+  when: manual
+  allow_failure: false
+  tags:
+    - board-prod
+  dependencies: []
+  only:
+    - master
+  variables:
+    STAGE: "prod"
+  before_script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${GITLAB_REGISTRY}
+    - DOCKER_IMAGE=${GITLAB_REGISTRY}/${GITLAB_PROJECT_PATH}/${SERVICE_NAME_BASE}:${VERSION_BASE}.${CI_PIPELINE_IID}
+    - CONTAINER_NAME=${SERVICE_NAME_BASE}
+  script:
+    - docker pull ${DOCKER_IMAGE}
+    - docker stop ${CONTAINER_NAME} || true && docker rm ${CONTAINER_NAME} || true
+    - docker run -d --restart=unless-stopped --name ${CONTAINER_NAME}
+      --log-opt max-size=100m
+      --network=board-net
+      -v /home/centos/${CONTAINER_NAME}/logs:/usr/local/tomcat/logs
+      -v /home/centos/fileStorage/files:/usr/local/tomcat/fileStorage/files
+      -v /home/centos/fileStorage/upload:/usr/local/tomcat/fileStorage/upload
+      -v /home/centos/fileStorage/temp:/usr/local/tomcat/fileStorage/temp
+      -e STAGE=${STAGE}
+      -e ELASTIC_APM_ENABLED=true
+      -e ELASTIC_APM_SERVER_URLS=http://218.237.51.75:8200
+      -e ELASTIC_APM_ENVIRONMENT=${STAGE}
+      -e ELASTIC_APM_SERVICE_NAME=board_prod
+      -e ELASTIC_APM_APPLICATION_PACKAGES=devsnote
+      -e TZ=Asia/Seoul
+      ${DOCKER_IMAGE}
