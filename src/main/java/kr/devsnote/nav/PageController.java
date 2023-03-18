@@ -14,7 +14,7 @@ public class PageController {
 
     @GetMapping("/")
     public ModelAndView goHome(HttpServletRequest req) {
-        log.info("[Pg] /board");
+        log.info("[Pg] /");
         ModelAndView mv = new ModelAndView("index");
         return mv;
     }

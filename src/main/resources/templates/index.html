@@ -11,7 +11,19 @@
 <body>
     <h1 style="margin-top:10px;"><img src="/img/under-construction.png" style="width:44px;margin-bottom:-10px;margin-right:10px;">DevsNote 삽질 사이트</h1>
     <div>
-        ㅇ v0.1 git.devsnote.kr 과 sync
+        <h2>도커라이즈</h2>
+        ㅇ v0.1 git.devsnote.kr 과 sync<br>
+        ㅇ v0.2 Dockerfile 개발
+        ㅇ v0.3 소스코드가 있는 로컬에서 도커 빌드(docker build), 배포(docker run)
+        ㅇ v0.4 원격지에서 빌드(docker build) 및 배포(docker run)
+         - 원격지에서는 빌드할 소스코드가 git에 있음.
+         - 빌드 방식:
+           1. 원격지에 git을 깔고 소스코드를 clone하여 빌드하는 방식
+           2. 깃랩 컨테이너 레지스트리를 이용하여 gitlab과 연동하여 빌드
+        ㅇ v0.5 원격지 서버에 gitlab-runner 설치 및 gitlab CI/CD와 연동 (<-상기 v0.4 빌드방식 2번을 구현)
+         - 원격지 서버(물리)가 개발과 운영으로 나누어져있다면 두개 서버에 gitlab-runner가 설치되어야 함.
+         - 각 서버 runner 등록시 Tag를 등록 -> .gitlab-ci.yml 에서 태그를 지정하여 작업
+        ㅇ v0.6 Job 설정파일인 .gitlab-ci.yml 파일 작성
     </div>
 </body>
 </html>

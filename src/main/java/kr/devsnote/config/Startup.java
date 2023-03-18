@@ -27,6 +27,7 @@ public class Startup {
 		log.info("-kr.devsnote Board App -");
 		log.info("######################################");
 		log.info("-LOGGING = {}-", loggingYN); // globals.properties에서 읽어옴.
+		log.info("-Stage = {}-", stage);
 		LoadInit();
 		log.info("######################################");
 		log.info("-kr.devsnote Board App Started -");

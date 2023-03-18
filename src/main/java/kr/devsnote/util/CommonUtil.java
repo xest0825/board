@@ -1,14 +1,10 @@
 package kr.devsnote.util;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import kr.devsnote.config.Constants;
-import kr.devsnote.file.FileVO;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +16,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -29,24 +27,24 @@ import java.util.*;
 
 
 @Slf4j
-@Component(value="CommonUtil")
+@Component(value = "CommonUtil")
 public class CommonUtil {
 
     /**
      * 두 시간에 대한 차리를 분 단위로 계산한다.
+     *
      * @param startDate yyyyMMddHHmmss
-     * @param endDAte yyyyMMddHHmmss
+     * @param endDAte   yyyyMMddHHmmss
      * @return 차이 분
      */
-    public static long getDifferSec(String startDate, String endDAte){
+    public static long getDifferSec(String startDate, String endDAte) {
 
         try {
             Date frDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(startDate);
             Date toDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(endDAte);
 
             long diffMil = toDate.getTime() - frDate.getTime();
-            long diffSec = diffMil/1000;
-            return diffSec;
+            return diffMil / 1000;
 
         } catch (ParseException e) {
 
@@ -57,21 +55,22 @@ public class CommonUtil {
 
     /**
      * 접속환경 확인(웹/모바일)
+     *
+     * @return boolean
      * @author JJT
      * @since 2018.06.11
-     * @return boolean
      */
     public static boolean isMobile(HttpServletRequest request) {
         String userAgent = request.getHeader("user-agent");
         boolean mobile1 = userAgent.matches(".*(iPhone|iPod|iPad|Android|Windows CE|BlackBerry|Symbian|Windows Phone|webOS|Opera Mini|Opera Mobi|POLARIS|IEMobile|lgtelecom|nokia|SonyEricsson).*");
         boolean mobile2 = userAgent.matches(".*(LG|SAMSUNG|Samsung).*");
-        if(mobile1 || mobile2) {
-            return true;
-        }
+        if (mobile1 || mobile2) { return true; }
         return false;
     }
+
     /**
      * 휴대폰번호양식에 맞는지 확인
+     *
      * @param str
      * @return boolean
      */
@@ -79,42 +78,46 @@ public class CommonUtil {
         //010, 011, 016, 017, 018, 019
         return str.matches("(01[016789])\\d{7,8}");
     }
+
     /**
      * 이메일 양식에 맞는지 확인
+     *
      * @param str
      * @return boolean
      */
     public static boolean isEmail(String str) {
         //aaa@bbb.com
-        return str.matches("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
+        return str.matches("^[_a-z\\d-]+(.[_a-z\\d-]+)*@(?:\\w+\\.)+\\w+$");
     }
 
     /**
      * 특정자리수만큼 난수 발생
+     *
      * @throws NoSuchAlgorithmException
      * @since 2018.06.11
      **/
     public static String generateNumber(int length) throws NoSuchAlgorithmException {
-        String numStr = "1";
-        String plusNumStr = "1";
+        StringBuilder numStr = new StringBuilder("1");
+        StringBuilder plusNumStr = new StringBuilder("1");
 
         for (int i = 0; i < length; i++) {
-            numStr += "0";
+            numStr.append("0");
             if (i != length - 1) {
-                plusNumStr += "0";
+                plusNumStr.append("0");
             }
         }
 
         Random random = SecureRandom.getInstanceStrong();
-        int result = random.nextInt(Integer.parseInt(numStr)) + Integer.parseInt(plusNumStr);
-        if (result > Integer.parseInt(numStr)) {
-            result = result - Integer.parseInt(plusNumStr);
+        int result = random.nextInt(Integer.parseInt(numStr.toString())) + Integer.parseInt(plusNumStr.toString());
+        if (result > Integer.parseInt(numStr.toString())) {
+            result = result - Integer.parseInt(plusNumStr.toString());
         }
         return "" + result;
     }
 
     /**
      * 널값 "" 로 변경
+     *
      * @since 2018.06.11
      **/
     public static String nullToEmpty(String str) {
@@ -131,10 +134,8 @@ public class CommonUtil {
      * @return 결과 calendar객체
      */
     public static Calendar getCalendarInstance() {
-        Calendar retCal = Calendar.getInstance();
-        return retCal;
+        return Calendar.getInstance();
     }
-
 
 
     /**
@@ -144,12 +145,9 @@ public class CommonUtil {
      *  ex) Calendar cal = DateUtil.getCalendarInstance(1982, 12, 02)
      * </pre>
      *
-     * @param year
-     *            년
-     * @param month
-     *            월
-     * @param date
-     *            일
+     * @param year  년
+     * @param month 월
+     * @param date  일
      * @return 결과 calendar객체
      */
     public static Calendar getCalendarInstance(int year, int month, int date) {
@@ -169,18 +167,12 @@ public class CommonUtil {
      *  ex) Calendar cal = DateUtil.getCalendarInstance(1982, 12, 02, 12, 59, 59)
      * </pre>
      *
-     * @param year
-     *            년
-     * @param month
-     *            월
-     * @param date
-     *            일
-     * @param hour
-     *            시
-     * @param minute
-     *            분
-     * @param second
-     *            초
+     * @param year   년
+     * @param month  월
+     * @param date   일
+     * @param hour   시
+     * @param minute 분
+     * @param second 초
      * @return 결과 calendar객체
      */
     public static Calendar getCalendarInstance(int year, int month, int date,
@@ -205,10 +197,8 @@ public class CommonUtil {
      *      DateUtil.getDateFormat(cal, "yyyy년MM월dd일 hh시mm분ss초")
      * </pre>
      *
-     * @param cal
-     *            calender객체
-     * @param type
-     *            변환타입
+     * @param cal  calender객체
+     * @param type 변환타입
      * @return 변환된 문자열
      */
     public static String getDateFormat(Calendar cal, String type) {
@@ -226,8 +216,7 @@ public class CommonUtil {
      *      DateUtil.getDateFormat("yyyy년MM월dd일 hh시mm분ss초")
      * </pre>
      *
-     * @param type
-     *            날짜타입
+     * @param type 날짜타입
      * @return 결과 문자열
      */
     public static String getDateFormat(String type) {
@@ -243,8 +232,7 @@ public class CommonUtil {
      *  ex) String date = DateUtil.getYyyymmdd()
      * </pre>
      *
-     * @param cal
-     *            Calender객체
+     * @param cal Calender객체
      * @return 결과 일자
      */
     public static String getYyyymmdd(Calendar cal) {
@@ -324,23 +312,20 @@ public class CommonUtil {
      * @return 현재 년월일
      */
     public static String getCurrentDateYYYYMMDD() {
-        return getCurrentDateTime().substring(0, 4)+"-"+getCurrentDateTime().substring(4, 6)+"-"+getCurrentDateTime().substring(6, 8);
+        return getCurrentDateTime().substring(0, 4) + "-" + getCurrentDateTime().substring(4, 6) + "-" + getCurrentDateTime().substring(6, 8);
     }
 
 
     /**
      * 입력된 일자를 더한 날짜를 yyyyMMdd 형태로 변환 후 return.
      *
-     *
-     * @param yyyymmdd
-     *            기준일자
-     * @param addDay
-     *            추가일
+     * @param yyyymmdd 기준일자
+     * @param addDay   추가일
      * @return 연산된 일자
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static String getDate(String yyyymmdd, int addDay) {
-        Calendar cal = Calendar.getInstance(Locale.FRANCE);
+        Calendar cal = Calendar.getInstance(Locale.KOREA);
         int new_yy = Integer.parseInt(yyyymmdd.substring(0, 4));
         int new_mm = Integer.parseInt(yyyymmdd.substring(4, 6));
         int new_dd = Integer.parseInt(yyyymmdd.substring(6, 8));
@@ -363,18 +348,15 @@ public class CommonUtil {
      *  ex) String date = DateUtil.getWeekToDay("200801" , 1, "yyyyMMdd")
      * </pre>
      *
-     * @param yyyymm
-     *            년월
-     * @param week
-     *            몇번째 주
-     * @param pattern
-     *            리턴되는 날짜패턴 (ex:yyyyMMdd)
+     * @param yyyymm  년월
+     * @param week    몇번째 주
+     * @param pattern 리턴되는 날짜패턴 (ex:yyyyMMdd)
      * @return 연산된 날짜
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static String getWeekToDay(String yyyymm, int week, String pattern) {
 
-        Calendar cal = Calendar.getInstance(Locale.FRANCE);
+        Calendar cal = Calendar.getInstance(Locale.KOREA);
 
         int new_yy = Integer.parseInt(yyyymm.substring(0, 4));
         int new_mm = Integer.parseInt(yyyymm.substring(4, 6));
@@ -391,7 +373,7 @@ public class CommonUtil {
                 + (cal.getFirstDayOfWeek() - cal.get(Calendar.DAY_OF_WEEK)));
 
         SimpleDateFormat formatter = new SimpleDateFormat(pattern,
-                Locale.FRANCE);
+                Locale.KOREA);
 
         return formatter.format(cal.getTime());
 
@@ -407,14 +389,11 @@ public class CommonUtil {
      *      결과 : 19820202
      * </pre>
      *
-     * @param field
-     *            연산 필드
-     * @param amount
-     *            더할 수
-     * @param cal
-     *            연산 대상 calendar객체
+     * @param field  연산 필드
+     * @param amount 더할 수
+     * @param cal    연산 대상 calendar객체
      * @return 연산된 날짜
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static String getComputeDate(int field, int amount, Calendar cal) {
         Calendar cpCal = (Calendar) cal.clone();
@@ -430,12 +409,10 @@ public class CommonUtil {
      *      결과 : 19820202
      * </pre>
      *
-     * @param field
-     *            연산 필드
-     * @param amount
-     *            더할 수
+     * @param field  연산 필드
+     * @param amount 더할 수
      * @return 연산된 날짜
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static String getComputeDate(int field, int amount) {
         return getComputeDate(field, amount, CommonUtil.getCalendarInstance());
@@ -448,15 +425,13 @@ public class CommonUtil {
      *  ex) int date = DateUtil.getWeek(DateUtil.getCurrentYyyymmdd() , 0)
      * </pre>
      *
-     * @param yyyymmdd
-     *            년도별
-     * @param addDay
-     *            추가일
+     * @param yyyymmdd 년도별
+     * @param addDay   추가일
      * @return 연산된 주
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static int getWeek(String yyyymmdd, int addDay) {
-        Calendar cal = Calendar.getInstance(Locale.FRANCE);
+        Calendar cal = Calendar.getInstance(Locale.KOREA);
         int new_yy = Integer.parseInt(yyyymmdd.substring(0, 4));
         int new_mm = Integer.parseInt(yyyymmdd.substring(4, 6));
         int new_dd = Integer.parseInt(yyyymmdd.substring(6, 8));
@@ -464,8 +439,7 @@ public class CommonUtil {
         cal.set(new_yy, new_mm - 1, new_dd);
         cal.add(Calendar.DATE, addDay);
 
-        int week = cal.get(Calendar.DAY_OF_WEEK);
-        return week;
+        return cal.get(Calendar.DAY_OF_WEEK);
     }
 
     /**
@@ -475,12 +449,10 @@ public class CommonUtil {
      *  ex) int date = DateUtil.getLastDayOfMon(2008 , 1)
      * </pre>
      *
-     * @param year
-     *            년
-     * @param month
-     *            월
+     * @param year  년
+     * @param month 월
      * @return 마지막 일수
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static int getLastDayOfMon(int year, int month) {
 
@@ -497,8 +469,7 @@ public class CommonUtil {
      *  ex) int date = DateUtil.getLastDayOfMon("2008")
      * </pre>
      *
-     * @param yyyymm
-     *            년월
+     * @param yyyymm 년월
      * @return 마지막 일수
      */
     public static int getLastDayOfMon(String yyyymm) {
@@ -522,7 +493,7 @@ public class CommonUtil {
      * @return boolean
      */
     public static boolean isCorrect(String yyyymmdd) {
-        boolean flag = false;
+        boolean flag;
         if (yyyymmdd.length() < 8)
             return false;
         try {
@@ -580,17 +551,17 @@ public class CommonUtil {
      * </pre>
      *
      * @return 요일
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static int getDayOfWeek() {
         Calendar rightNow = Calendar.getInstance();
-        int day_of_week = rightNow.get(Calendar.DAY_OF_WEEK);
-        return day_of_week;
+        return rightNow.get(Calendar.DAY_OF_WEEK);
     }//:
 
 
     /**
      * 입력받은 날짜의 요일을 반환한다.
+     *
      * @param yyyymmdd
      * @return
      */
@@ -602,10 +573,8 @@ public class CommonUtil {
 
         cal.set(new_yy, new_mm - 1, new_dd);
 
-        int day_of_week = cal.get(Calendar.DAY_OF_WEEK);
-        return day_of_week;
+        return cal.get(Calendar.DAY_OF_WEEK);
     }//:
-
 
 
     /**
@@ -616,17 +585,17 @@ public class CommonUtil {
      * </pre>
      *
      * @return 주
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static int getWeekOfYear() {
         Locale LOCALE_COUNTRY = Locale.KOREA;
         Calendar rightNow = Calendar.getInstance(LOCALE_COUNTRY);
-        int week_of_year = rightNow.get(Calendar.WEEK_OF_YEAR);
-        return week_of_year;
+        return rightNow.get(Calendar.WEEK_OF_YEAR);
     }//:
 
     /**
      * 입력받은 yyyymmdd 가 전체의 몇주에 해당되는지 계산한다.
+     *
      * @param yyyymmdd
      * @return 주
      */
@@ -638,10 +607,8 @@ public class CommonUtil {
 
         cal.set(new_yy, new_mm - 1, new_dd);
 
-        int week = cal.get(Calendar.WEEK_OF_YEAR);
-        return week;
+        return cal.get(Calendar.WEEK_OF_YEAR);
     }//:
-
 
 
     /**
@@ -652,13 +619,12 @@ public class CommonUtil {
      * </pre>
      *
      * @return 주
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static int getWeekOfMonth() {
         Locale LOCALE_COUNTRY = Locale.KOREA;
         Calendar rightNow = Calendar.getInstance(LOCALE_COUNTRY);
-        int week_of_month = rightNow.get(Calendar.WEEK_OF_MONTH);
-        return week_of_month;
+        return rightNow.get(Calendar.WEEK_OF_MONTH);
     }//:
 
 
@@ -670,7 +636,7 @@ public class CommonUtil {
      * </pre>
      *
      * @return 주
-     * @see java.util.Calendar
+     * @see Calendar
      */
     public static int getWeekOfMonth(String yyyymmdd) {
 
@@ -681,12 +647,8 @@ public class CommonUtil {
 
         cal.set(new_yy, new_mm - 1, new_dd);
 
-        int week = cal.get(Calendar.WEEK_OF_MONTH);
-        return week;
-
+        return cal.get(Calendar.WEEK_OF_MONTH);
     }//:
-
-
 
 
     /**
@@ -696,41 +658,38 @@ public class CommonUtil {
      *  ex) long date = DateUtil.getDifferDays("20080101", "20080202")
      * </pre>
      *
-     * @param startDate
-     *            시작 날짜
-     * @param endDate
-     *            끝 날짜
+     * @param startDate 시작 날짜
+     * @param endDate   끝 날짜
      * @return 날수
-     * @see java.util.GregorianCalendar
+     * @see GregorianCalendar
      */
     public static long getDifferDays(String startDate, String endDate) {
         GregorianCalendar StartDate = getGregorianCalendar(startDate);
         GregorianCalendar EndDate = getGregorianCalendar(endDate);
-        long difer = (EndDate.getTime().getTime() - StartDate.getTime()
+        return (EndDate.getTime().getTime() - StartDate.getTime()
                 .getTime()) / 86400000;
-        return difer;
     }//:
-
 
 
     /**
      * 두 시간에 대한 차리를 분 단위로 계산한다.
+     *
      * @param startDate yyyyMMddHHmmss
-     * @param endDAte yyyyMMddHHmmss
+     * @param endDAte   yyyyMMddHHmmss
      * @return 차이 분
      */
-    public static long getDifferMin(String startDate, String endDAte){
+    public static long getDifferMin(String startDate, String endDAte) {
 
         try {
             Date frDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(startDate);
             Date toDate = new SimpleDateFormat("yyyyMMddHHmmss").parse(endDAte);
 
             long diffMil = toDate.getTime() - frDate.getTime();
-            long diffSec = diffMil/1000;
-            long  Min = (diffSec) / 60;
+            long diffSec = diffMil / 1000;
+            long Min = (diffSec) / 60;
 
-            if(Min < 0){
-                Min = Min*-1;
+            if (Min < 0) {
+                Min = Min * -1;
             }
 
             return Min;
@@ -740,7 +699,7 @@ public class CommonUtil {
             return -1;
         }
 
-    }//:
+    }
 
 
     /**
@@ -750,12 +709,10 @@ public class CommonUtil {
      *  ex) long date = DateUtil.getDifferMonths("20080101", "20080202")
      * </pre>
      *
-     * @param startDate
-     *            시작 날짜
-     * @param endDate
-     *            끝 날짜
+     * @param startDate 시작 날짜
+     * @param endDate   끝 날짜
      * @return 월수
-     * @see java.util.GregorianCalendar
+     * @see GregorianCalendar
      */
     public static int getDifferMonths(String startDate, String endDate) {
         GregorianCalendar cal1 = getGregorianCalendar(startDate);
@@ -774,11 +731,10 @@ public class CommonUtil {
      *  ex) Calendar cal = DateUtil.getGregorianCalendar(DateUtil.getCurrentYyyymmdd())
      * </pre>
      *
-     * @param yyyymmdd
-     *            날짜 인수
+     * @param yyyymmdd 날짜 인수
      * @return GregorianCalendar
-     * @see java.util.Calendar
-     * @see java.util.GregorianCalendar
+     * @see Calendar
+     * @see GregorianCalendar
      */
 
     private static GregorianCalendar getGregorianCalendar(String yyyymmdd) {
@@ -787,14 +743,9 @@ public class CommonUtil {
         int mm = Integer.parseInt(yyyymmdd.substring(4, 6));
         int dd = Integer.parseInt(yyyymmdd.substring(6));
 
-        GregorianCalendar calendar = new GregorianCalendar(yyyy, mm - 1, dd, 0,
+        return new GregorianCalendar(yyyy, mm - 1, dd, 0,
                 0, 0);
-
-        return calendar;
-
     }//:
-
-
 
 
     /**
@@ -805,7 +756,7 @@ public class CommonUtil {
      * @param date 대상 날짜
      * @return 문자열
      */
-    public  String formatDate(Timestamp date) {
+    public String formatDate(Timestamp date) {
         if (date == null) {
             return "";
         }
@@ -822,10 +773,9 @@ public class CommonUtil {
      * yyyy-MM-dd HH:mm:ss 형식
      *
      * @param date 대상 날짜
-     *
      * @return 문자열
      */
-    public  String formatDateWithTime(Timestamp date) {
+    public String formatDateWithTime(Timestamp date) {
         if (date == null) {
             return "";
         }
@@ -834,15 +784,15 @@ public class CommonUtil {
 
         return format.format(date);
     }
+
     /**
      * 날짜 형식 출력
      *
-     * @param date 대상 날짜 문자열
+     * @param date      대상 날짜 문자열
      * @param separator 구분자
-     *
      * @return formatted date string
      */
-    public  String formatDate(String date, String separator) {
+    public String formatDate(String date, String separator) {
         if (date == null || date.length() != 8) {
             return "";
         }
@@ -850,46 +800,44 @@ public class CommonUtil {
             separator = ". ";
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(date.substring(0, 4))
-                .append(separator)
-                .append(date.substring(4, 6))
-                .append(separator)
-                .append(date.substring(6, 8));
-        return sb.toString();
+        return date.substring(0, 4) +
+                separator +
+                date.substring(4, 6) +
+                separator +
+                date.substring(6, 8);
     }
+
     /**
      * 월 컨트롤
      *
-     * @param c 대상 날짜
-     * @param gap 변경할 월
+     * @param c      대상 날짜
+     * @param gap    변경할 월
      * @param format 날짜의 포맷 지정
-     *
      * @return formatted date string
      */
-    public static String getYearMonth(Calendar c,int gap,String format){
-        String resultString = "";
+    public static String getYearMonth(Calendar c, int gap, String format) {
+        String resultString;
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH) + 1 + gap;
         c.set(year, month - 1, 1);
-        resultString = getDateFormat(c,format);
+        resultString = getDateFormat(c, format);
         return resultString;
     }
+
     /**
      * {@code URLDecoder}를 이용하여 decoding된 URL을 반환한다.
      *
      * @param url 대상 문자열
-     *
      * @return decoding된 URL
      */
-    public  String decodeURL(String url) {
+    public String decodeURL(String url) {
         String decodedURL = "";
 
         if (CommonUtil.isNotEmpty(url)) {
             try {
                 decodedURL = URLDecoder.decode(url, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-
+                e.printStackTrace();
             }
         }
 
@@ -902,12 +850,11 @@ public class CommonUtil {
      * value값이 null이면 replacement를 리턴하고,
      * value값이 null이 아니면 value값을 리턴한다.
      *
-     * @param value 원래 문자열
+     * @param value       원래 문자열
      * @param replacement 치환문자열
-     *
      * @return 결과문자열
      */
-    public  String nvl(String value, String replacement) {
+    public String nvl(String value, String replacement) {
         if (value == null || "".equals(value)) {
             return replacement;
         }
@@ -920,12 +867,11 @@ public class CommonUtil {
      * value값이 null이거나 '0'이면 replacement를 리턴하고,
      * value값이 null이 아니면 value값을 리턴한다.
      *
-     * @param value 원래 문자열
+     * @param value       원래 문자열
      * @param replacement 치환문자열
-     *
      * @return 결과문자열
      */
-    public  String nvl0(String value, String replacement) {
+    public String nvl0(String value, String replacement) {
         if (value == null || "".equals(value) || "0".equals(value)) {
             return replacement;
         }
@@ -936,20 +882,19 @@ public class CommonUtil {
      * 문자열로부터 HTML/XML 태그를 제거함
      *
      * @param message
-     *
      * @return String message without XML or HTML
      */
-    public  String stripHTMLTags(String message) {
-        String noHTMLString = message.replaceAll("\\<.*?\\>", "");
-        return noHTMLString;
+    public String stripHTMLTags(String message) {
+        return message.replaceAll("<.*?>", "");
     }
 
     /**
      * 정규화 표현식을 문자열로 변환
+     *
      * @param str
      * @return
      */
-    public static  String codeToStr(String str) {
+    public static String codeToStr(String str) {
         str = str.replaceAll("&lt;", "<")
                 .replaceAll("&gt;", ">")
                 .replaceAll("&#039;", "'")
@@ -961,6 +906,7 @@ public class CommonUtil {
 
     /**
      * 문자열을 정규화 표현식으로 변환
+     *
      * @param str
      * @return
      */
@@ -973,15 +919,15 @@ public class CommonUtil {
 
         return str;
     }
+
     /**
      * 문자열 길이만큼 줄임
      *
      * @param content 문자열
-     * @param length 길이
-     *
+     * @param length  길이
      * @return 잘린 문자열
      */
-    public  String getFitString(String content, int length) {
+    public String getFitString(String content, int length) {
         if (content == null) {
             return "";
         }
@@ -1011,8 +957,8 @@ public class CommonUtil {
      * @param str {@code String}
      * @return 대문자 반환
      */
-    public  String toUpperCase(String str) {
-        if (!StringUtils.isEmpty(str)) {
+    public String toUpperCase(String str) {
+        if (StringUtils.hasText(str)) {
             return str.toUpperCase();
         }
         return "";
@@ -1020,11 +966,12 @@ public class CommonUtil {
 
     /**
      * 대문자 -> 소문자로 변경
+     *
      * @param str {@code String}
      * @return 소문자 반환
      */
-    public  String toLowerCase(String str) {
-        if (!StringUtils.isEmpty(str)) {
+    public String toLowerCase(String str) {
+        if (StringUtils.hasText(str)) {
             return str.toLowerCase();
         }
         return "";
@@ -1032,12 +979,13 @@ public class CommonUtil {
 
     /**
      * CLOB로 되어 있는 것을 String 으로 변경한다.
+     *
      * @param clob
      * @return
      */
     public static String getStringFromCLOB(java.sql.Clob clob) {
-        StringBuffer sbf = new StringBuffer();
-        java.io.Reader br = null;
+        StringBuilder sbf = new StringBuilder();
+        Reader br = null;
         char[] buf = new char[1024];
         int readcnt;
         try {
@@ -1046,13 +994,13 @@ public class CommonUtil {
                 sbf.append(buf, 0, readcnt);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             if (br != null)
                 try {
                     br.close();
                 } catch (IOException e) {
-
+                    e.printStackTrace();
                 }
         }
         return sbf.toString();
@@ -1065,11 +1013,11 @@ public class CommonUtil {
      * @param name
      * @return
      */
-    public  String getHiddenName(String name) {
-        String tmp = "";
+    public String getHiddenName(String name) {
+        String tmp;
 
-        if(name.length() > 1) {
-            tmp = name.substring(0, 1) + "○" + name.substring(2);
+        if (name.length() > 1) {
+            tmp = name.charAt(0) + "○" + name.substring(2);
         } else {
             tmp = name;
         }
@@ -1080,13 +1028,13 @@ public class CommonUtil {
     /**
      * Compute the hash value to check for "real person" submission.
      *
-     * @param  value  the entered value
-     * @return  its hash value
+     * @param value the entered value
+     * @return its hash value
      */
     public String rpHash(String value) {
         int hash = 5381;
         value = value.toUpperCase();
-        for(int i = 0; i < value.length(); i++) {
+        for (int i = 0; i < value.length(); i++) {
             hash = ((hash << 5) + hash) + value.charAt(i);
         }
         return String.valueOf(hash);
@@ -1096,16 +1044,15 @@ public class CommonUtil {
     /**
      * 만 20세 이상인지 확인
      *
-     * @param year 년
+     * @param year  년
      * @param month 월 (1~12)
-     * @param day 일
-     *
+     * @param day   일
      * @return 만 20세 이상인지 여부
      */
     public boolean isOver20Years(int year, int month, int day) {
         Calendar birthday = Calendar.getInstance();
         birthday.set(Calendar.YEAR, year);
-        birthday.set(Calendar.MONTH, month-1);
+        birthday.set(Calendar.MONTH, month - 1);
         birthday.set(Calendar.DAY_OF_MONTH, day);
 
         // 14년전 오늘 Calendar
@@ -1144,9 +1091,9 @@ public class CommonUtil {
      * 응답을 HTML로 보낸다.
      *
      * @param response 응답
-     * @param data HTML DATA
+     * @param data     HTML DATA
      */
-    public static  void outHTML(HttpServletResponse response, String data, String charset) {
+    public static void outHTML(HttpServletResponse response, String data, String charset) {
         charset = (charset == null) ? "utf-8" : charset;
         response.setContentType("text/html; charset=" + charset);
         //response.setStatus(response.SC_OK);  // 정상
@@ -1160,40 +1107,36 @@ public class CommonUtil {
      * data를 응답으로 보낸다.
      *
      * @param response 웹응답
-     * @param data 응답데이타
-     * @param charset 문자셋
+     * @param data     응답데이타
+     * @param charset  문자셋
      */
-    public static  void printToClient(HttpServletResponse response, String data, String charset) {
-        PrintWriter out = null;
+    public static void printToClient(HttpServletResponse response, String data, String charset) {
 
-        try {
-            out = new PrintWriter(response.getWriter());
+        try (PrintWriter out = new PrintWriter(response.getWriter())) {
             out.print(data);
             out.flush();
         } catch (Exception e) {
             response.setStatus(500);
             log.error(e.getMessage());
-        } finally {
-            if (out != null)
-                out.close();
         }
     }
 
     /**
      * 난수 생성
+     *
      * @param scerno 난수영역 시작 값
      * @param ecerno 난수영역 끝 값
      * @return 생성된 난수
      * @throws Exception
      */
-    public int makeRandomInt(int scerno , int ecerno) {
+    public int makeRandomInt(int scerno, int ecerno) {
         int result = 0;
-        double cerno_range = ecerno - scerno +1d;
+        double cerno_range = ecerno - scerno + 1d;
 
-        try{
+        try {
             Random randomGenerator = SecureRandom.getInstanceStrong();
-            result= (int) (randomGenerator.nextDouble() * cerno_range + scerno);
-        }catch(Exception e){
+            result = (int) (randomGenerator.nextDouble() * cerno_range + scerno);
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
         return result;
@@ -1202,21 +1145,22 @@ public class CommonUtil {
 
     /**
      * request 정보 로그 출력
+     *
      * @param request
      */
     @SuppressWarnings("rawtypes")
-    public void logforRequestParameter(HttpServletRequest request){
+    public void logforRequestParameter(HttpServletRequest request) {
 
         Map map = request.getParameterMap();
         Iterator it = map.keySet().iterator();
-        Object key = null;
-        String[] value = null;
+        Object key;
+        String[] value;
 
-        while(it.hasNext()){
+        while (it.hasNext()) {
             key = it.next();
             value = (String[]) map.get(key);
-            for(int i = 0 ; i < value.length; i++) {
-                // log.info("key ==> " + key +  " value ===> " +value[i]  + " index i ==> " + i);
+            for (int i = 0; i < value.length; i++) {
+                log.info("key : " + key +  " value : " +value[i]  + " index[" + i + "]");
             }
         }
 
@@ -1224,6 +1168,7 @@ public class CommonUtil {
 
     /**
      * shell 명령어 실행
+     *
      * @param ContentsDwonloadPath
      * @param url
      * @return
@@ -1232,7 +1177,7 @@ public class CommonUtil {
     public boolean callShellCommand(String ContentsDwonloadPath, String url) {
 
         boolean result = true;
-        String command  = ContentsDwonloadPath + "getContents.sh " + ContentsDwonloadPath + "temp.html " + url + " "+ ContentsDwonloadPath + "temputf8.html";
+        String command = ContentsDwonloadPath + "getContents.sh " + ContentsDwonloadPath + "temp.html " + url + " " + ContentsDwonloadPath + "temputf8.html";
 
         log.debug("************************");
         log.debug("command  ==> {}", command);
@@ -1241,16 +1186,16 @@ public class CommonUtil {
         BufferedReader br = null;
 
         try {
-            java.lang.Runtime runTime = java.lang.Runtime.getRuntime();
-            java.lang.Process process = runTime.exec(command);
+            Runtime runTime = Runtime.getRuntime();
+            Process process = runTime.exec(command);
             //log.info(process.waitFor());
 
             br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            //for(String str; (str = br.readLine())!=null;){
-            //log.info(str);
-            //}
+            for(String str; (str = br.readLine())!=null;){
+                log.info(str);
+            }
 
-            if(process.exitValue()!=0){
+            if (process.exitValue() != 0) {
                 log.error("************************");
                 log.error("셀이 정상종료 되지 않았습니다.");
                 log.error("************************");
@@ -1260,16 +1205,15 @@ public class CommonUtil {
             log.debug("************************");
             log.debug("프로그램 종료");
             log.debug("************************");
-        } catch(IOException ioE) {
+        } catch (Exception ioE) {
             log.error(ioE.getMessage());
-        } catch(Exception e) {
-            log.error(e.getMessage());
         } finally {
-            if(br != null) {
+            if (br != null) {
                 try {
                     br.close();
-                } catch(IOException ioE) {
-                    ioE.getMessage();
+                } catch (IOException ioE) {
+                    String message = ioE.getMessage();
+                    log.error(message);
                 }
             }
         }
@@ -1278,197 +1222,173 @@ public class CommonUtil {
     }
 
     @SuppressWarnings("rawtypes")
-    public static boolean isEmpty(Object obj)
-    {
-        if( obj instanceof String ) return obj==null || "".equals(obj.toString().trim());
-        else if( obj instanceof List ) return obj==null || ((List<?>)obj).isEmpty();
-        else if( obj instanceof Map ) return obj==null || ((Map)obj).isEmpty();
-        else if( obj instanceof Object[] ) return obj==null || Array.getLength(obj)==0;
-        else return obj==null;
+    public static boolean isEmpty(Object obj) {
+        if (obj instanceof String) return "".equals(obj.toString().trim());
+        else if (obj instanceof List) return ((List<?>) obj).isEmpty();
+        else if (obj instanceof Map) return ((Map) obj).isEmpty();
+        else if (obj instanceof Object[]) return Array.getLength(obj) == 0;
+        else return obj == null;
     }
 
-    public static boolean isNotEmpty(Object obj)
-    {
+    public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
 
-    public static boolean isEquals(Object sobj, Object tobj)
-    {
-        if(CommonUtil.isNotEmpty(sobj))
-        {
+    public static boolean isEquals(Object sobj, Object tobj) {
+        if (CommonUtil.isNotEmpty(sobj)) {
             return sobj.equals(tobj);
         }
         return false;
     }
-    public static boolean isNotEquals(Object sobj, Object tobj)
-    {
-        return !isEquals(sobj,tobj);
+
+    public static boolean isNotEquals(Object sobj, Object tobj) {
+        return !isEquals(sobj, tobj);
     }
 
-    public static String subString(String str, int start, int end)
-    {
+    public static String subString(String str, int start, int end) {
         return str.substring(start, end);
     }
 
 
     /**
      * joson JSONObject를  response에 전달한다.
+     *
      * @param response
      * @param jsononject
      * @param resultcode 결과코드 200 정상 500 에러 etc...
      * @throws Exception
      */
-    public void sendjson(HttpServletResponse response, JSONPObject jsononject , int resultcode) {
+    public static void sendjson(HttpServletResponse response, JSONObject jsononject, int resultcode) {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(resultcode);
-        PrintWriter out = null;
 
-        try {
-            out = response.getWriter();
-
+        try (PrintWriter out = response.getWriter()) {
             out.println(jsononject.toString());
-        } catch(IOException ioE) {
+        } catch (Exception ioE) {
             log.error(ioE.getMessage());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        } finally {
-            if(out != null) out.close();
         }
     }
 
     /**
      * joson JSONArray를  response에 전달한다.
+     *
      * @param response
      * @param jsononarry
      * @param resultcode 결과코드 200 정상 500 에러 etc...
      * @throws Exception
      */
-    public void sendjson(HttpServletResponse response, JSONArray jsononarry , int resultcode) {
+    public void sendjson(HttpServletResponse response, JSONArray jsononarry, int resultcode) {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(resultcode);
-        PrintWriter out = null;
 
-        try {
-            out = response.getWriter();
-
+        try (PrintWriter out = response.getWriter()) {
             out.println(jsononarry.toString());
-        } catch(IOException ioE) {
+        } catch (Exception ioE) {
             log.error(ioE.getMessage());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        } finally {
-            if(out != null) out.close();
         }
     }
 
     /**
-     *
      * convertMapToObject
-     *
+     * <p>
      * 최초 생성일  : 2014. 4. 22. : 오후 4:09:10
      * file : CommonUtil.java
+     *
      * @param map
      * @param objClass
      * @return
      */
     @SuppressWarnings("rawtypes")
-    public static Object convertMapToObject(Map map, Object objClass){
-        String keyAttribute = null;
+    public static Object convertMapToObject(Map map, Object objClass) {
+        String keyAttribute;
         String setMethodString = "set";
-        String methodString = null;
-        Iterator itr = map.keySet().iterator();
+        String methodString;
 
-        while(itr.hasNext()){
+        for (Object o : map.keySet()) {
 
-            keyAttribute = (String) itr.next();
-            methodString = setMethodString + keyAttribute.substring(0,1).toUpperCase() + keyAttribute.substring(1);
+            keyAttribute = (String) o;
+            methodString = setMethodString + keyAttribute.substring(0, 1).toUpperCase() + keyAttribute.substring(1);
 
             try {
-                Class<? extends Object> paramClass = objClass.getClass();
+                Class<?> paramClass = objClass.getClass();
 
-                Method[] methods = paramClass.getDeclaredMethods();	//VO
-                Method[] superClassmethods = paramClass.getSuperclass().getDeclaredMethods();	//BaseVO
+                Method[] methods = paramClass.getDeclaredMethods();    //VO
+                Method[] superClassmethods = paramClass.getSuperclass().getDeclaredMethods();    //BaseVO
 
-                for(int i=0; i <= methods.length-1; i++) {
-                    if(methodString.equals(methods[i].getName())) {
-                        if(map.get(keyAttribute) instanceof Boolean) {
-                            if((Boolean) map.get(keyAttribute)) {
+                for (int i = 0; i <= methods.length - 1; i++) {
+                    if (methodString.equals(methods[i].getName())) {
+                        if (map.get(keyAttribute) instanceof Boolean) {
+                            if ((Boolean) map.get(keyAttribute)) {
                                 methods[i].invoke(objClass, true);
                             } else {
                                 methods[i].invoke(objClass, false);
                             }
-                        }else if(!(map.get(keyAttribute) instanceof ArrayList)) {
-                            if(map.get(keyAttribute) == null) {
+                        } else if (!(map.get(keyAttribute) instanceof ArrayList)) {
+                            if (map.get(keyAttribute) == null) {
                                 methods[i].invoke(objClass, "");
-                            }else {
+                            } else {
                                 methods[i].invoke(objClass, map.get(keyAttribute).toString());
                             }
                         }
                     }
                 }
 
-                for(int i=0; i <= superClassmethods.length-1; i++) {
+                for (int i = 0; i <= superClassmethods.length - 1; i++) {
 
-                    if(methodString.equals(superClassmethods[i].getName())) {
-                        if(map.get(keyAttribute) instanceof Boolean) {
-                            if((Boolean) map.get(keyAttribute)) {
+                    if (methodString.equals(superClassmethods[i].getName())) {
+                        if (map.get(keyAttribute) instanceof Boolean) {
+                            if ((Boolean) map.get(keyAttribute)) {
                                 superClassmethods[i].invoke(objClass, true);
                             } else {
                                 superClassmethods[i].invoke(objClass, false);
                             }
-                        }else if(!(map.get(keyAttribute) instanceof ArrayList)) {
-                            if(map.get(keyAttribute) == null) {
+                        } else if (!(map.get(keyAttribute) instanceof ArrayList)) {
+                            if (map.get(keyAttribute) == null) {
                                 superClassmethods[i].invoke(objClass, "");
-                            }else {
+                            } else {
                                 superClassmethods[i].invoke(objClass, map.get(keyAttribute).toString());
                             }
                         }
                     }
                 }
             } catch (SecurityException e) {
-
-            } catch (IllegalAccessException e) {
-
-            } catch (IllegalArgumentException e) {
-
-            } catch (InvocationTargetException e) {
-
+                e.printStackTrace();
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                e.getStackTrace();
             }
         }
         return objClass;
     }
 
     /**
-     *
      * ConverObjectToMap
-     *
+     * <p>
      * 최초 생성일  : 2014. 4. 22. : 오후 4:09:18
      * file : CommonUtil.java
+     *
      * @param obj
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Map ConverObjectToMap(Object obj){
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static Map ConverObjectToMap(Object obj) {
         try {
             //Field[] fields = obj.getClass().getFields(); //private field는 나오지 않음.
             Field[] fields = obj.getClass().getDeclaredFields();
             Map resultMap = new HashMap();
-            for(int i=0; i<=fields.length-1;i++){
+            for (int i = 0; i <= fields.length - 1; i++) {
                 fields[i].setAccessible(true);
                 resultMap.put(fields[i].getName(), fields[i].get(obj));
             }
 
-            log.debug("resultMap[{}]" , resultMap);
+            log.debug("resultMap[{}]", resultMap);
 
             return resultMap;
-        } catch (IllegalArgumentException e) {
-
-        } catch (IllegalAccessException e) {
-
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.getStackTrace();
         }
 
         return null;
@@ -1476,29 +1396,28 @@ public class CommonUtil {
 
     /**
      * Object를 Map으로 변환, 키를 전부 소문자로
-     * @author KIMDONGUK
+     *
      * @param obj
      * @return
+     * @author KIMDONGUK
      */
-    public static Map<String, Object> ConvertObjectToMapLowerKey(Object obj){
+    public static Map<String, Object> ConvertObjectToMapLowerKey(Object obj) {
         try {
             Field[] fields = obj.getClass().getDeclaredFields();
-            Map<String, Object> resultMap = new HashMap<String, Object>();
+            Map<String, Object> resultMap = new HashMap<>();
 
-            for(int i=0; i<=fields.length-1;i++) {
+            for (int i = 0; i <= fields.length - 1; i++) {
                 fields[i].setAccessible(true);
 
                 resultMap.put(fields[i].getName().toLowerCase(), fields[i].get(obj));
             }
 
-            log.debug("resultMap[{}]" , resultMap);
+            log.debug("resultMap[{}]", resultMap);
 
             return resultMap;
 
-        } catch (IllegalArgumentException e) {
-
-        } catch (IllegalAccessException e) {
-
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.getStackTrace();
         }
 
         return null;
@@ -1506,9 +1425,10 @@ public class CommonUtil {
 
     /**
      * 렌덤 스트링 생성
+     *
      * @return
      */
-    public static String getUUID(){
+    public static String getUUID() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
@@ -1518,6 +1438,7 @@ public class CommonUtil {
      * 최초 생성일  : 2014. 6. 16.
      * file         : CommonUtil.java
      * RETURN       : boolean
+     *
      * @param s
      * @return
      */
@@ -1535,14 +1456,14 @@ public class CommonUtil {
         Properties prop = System.getProperties();
         String webRoot = prop.getProperty("web.root");
         log.info("tmpRoot=" + webRoot);
-        String properties_dir = "";
+        String properties_dir;
         if (webRoot == null) {
             properties_dir = prop.getProperty("user.dir") + "/src/main/resources/properties/";
         } else {
             properties_dir = webRoot + "WEB-INF/classes/resources/properties/";
         }
 
-        String properties_file = "";
+        String properties_file;
         if (pathandFile == null) {
             properties_file = properties_dir + "globals.xml";
         } else {
@@ -1554,9 +1475,9 @@ public class CommonUtil {
         // read globals.properties
         Properties global_properties = new Properties();
         try {
-            global_properties.load(new FileInputStream(properties_file));
+            global_properties.load(Files.newInputStream(Paths.get(properties_file)));
         } catch (IOException ioe) {
-            ioe.getMessage();
+            ioe.getStackTrace();
         }
 
         return global_properties;
@@ -1578,7 +1499,7 @@ public class CommonUtil {
             sContents += "<script type='text/javascript'>";
             sContents += "$(document).ready(function(){";
             sContents += "genexon.initKendoUI_notification();";
-            sContents += "genexon.alert('"+ info +"', '"+ contents +"', '" + message + "');";
+            sContents += "genexon.alert('" + info + "', '" + contents + "', '" + message + "');";
             sContents += "})";
             sContents += "</script>";
 
@@ -1586,18 +1507,19 @@ public class CommonUtil {
         } catch (Exception e) {
             log.error(e.getMessage());
         } finally {
-            if(out != null) out.close();
+            if (out != null) out.close();
         }
     }
 
     /**
      * alert 메시지 전송후 메인으로 이동
+     *
      * @param response
      * @param message
      */
     public static void sendAlertMsg(HttpServletResponse response, String message) {
 
-        String sContents = "";
+        String sContents;
         PrintWriter out = null;
 
         try {
@@ -1613,7 +1535,7 @@ public class CommonUtil {
         } catch (Exception e) {
             log.error(e.getMessage());
         } finally {
-            if(out != null) out.close();
+            if (out != null) out.close();
         }
 
     }
@@ -1621,12 +1543,12 @@ public class CommonUtil {
     // 임시비밀번호 만들기
     public static String temporaryPassword(int size) {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         SecureRandom random = new SecureRandom();
         random.setSeed(new Date().getTime());
 
-        String chars[] = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,0,1,2,3,4,5,6,7,8,9".split(",");
-        String SpecialChars[] = "~,!,@,#,$,%,^,&,*,(,),+,-".split(",");
+        String[] chars = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,0,1,2,3,4,5,6,7,8,9".split(",");
+        String[] SpecialChars = "~,!,@,#,$,%,^,&,*,(,),+,-".split(",");
 
         int SpCnt = random.nextInt(9);
 
@@ -1643,14 +1565,14 @@ public class CommonUtil {
         return buffer.toString();
     }
 
-    public static String parseMessage(String message, String...args) {
+    public static String parseMessage(String message, String... args) {
         if (message == null || message.trim().length() <= 0)
             return message;
 
         if (args == null || args.length <= 0) return message;
 
         String[] splitMsgs = message.split("%");
-        if (splitMsgs == null || splitMsgs.length <= 1)
+        if (splitMsgs.length <= 1)
             return message;
 
         for (int i = 0; i < args.length; i++) {
@@ -1662,6 +1584,7 @@ public class CommonUtil {
 
     /**
      * 페이징 쿼리에서 페이지 시작점 구하기
+     *
      * @return Integer
      */
     public static Integer getPageOffset(String page, String pageSize) {
@@ -1672,17 +1595,17 @@ public class CommonUtil {
      * request 매핑
      */
     @SuppressWarnings("rawtypes")
-    public static Map<String, String> setParams(HttpServletRequest request) throws Exception {
+    public static Map<String, String> setParams(HttpServletRequest request) {
         Enumeration params = request.getParameterNames();
-        Map<String, String> map = new HashMap<String, String>();
-        String key = "";
-        String mapData = "";
+        Map<String, String> map = new HashMap<>();
+        String key;
+        String mapData;
 
-        while (params.hasMoreElements()){
-            key = (String)params.nextElement();
-            mapData = request.getParameter(key) == null ? "" : request.getParameter(key).toString();
-            if(mapData.length() > 0){
-                if("request".equals(key)){
+        while (params.hasMoreElements()) {
+            key = (String) params.nextElement();
+            mapData = request.getParameter(key) == null ? "" : request.getParameter(key);
+            if (mapData.length() > 0) {
+                if ("request".equals(key)) {
                     continue;
                 }
                 map.put(key, mapData);
@@ -1695,301 +1618,126 @@ public class CommonUtil {
     // 주민번호로 생일추출
     public String setRealBirthday(String ssn) {
         String ssnSubFristNumber = ssn.substring(7, 8);
-        String realBirthday = "";
-        String year = "";
-        String month = "";
-        String day = "";
+        String realBirthday;
+        String year;
+        String month;
+        String day;
 
-        if("1".equals(ssnSubFristNumber)){
-            realBirthday = "19"+ssn.substring(0, 6);
-        }else if("2".equals(ssnSubFristNumber)){
-            realBirthday = "19"+ssn.substring(0, 6);
-        }else if("3".equals(ssnSubFristNumber)){
-            realBirthday = "20"+ssn.substring(0, 6);
-        }else if("4".equals(ssnSubFristNumber)){
-            realBirthday = "20"+ssn.substring(0, 6);
-        }else if("5".equals(ssnSubFristNumber)){
-            realBirthday = "19"+ssn.substring(0, 6);
-        }else if("6".equals(ssnSubFristNumber)){
-            realBirthday = "19"+ssn.substring(0, 6);
-        }else if("7".equals(ssnSubFristNumber)){
-            realBirthday = "20"+ssn.substring(0, 6);
-        }else if("8".equals(ssnSubFristNumber)){
-            realBirthday = "20"+ssn.substring(0, 6);
-        }else{
-            realBirthday = "19"+ssn.substring(0, 6);
+        switch (ssnSubFristNumber) {
+            case "1":
+                realBirthday = "19" + ssn.substring(0, 6);
+                break;
+            case "2":
+                realBirthday = "19" + ssn.substring(0, 6);
+                break;
+            case "3":
+                realBirthday = "20" + ssn.substring(0, 6);
+                break;
+            case "4":
+                realBirthday = "20" + ssn.substring(0, 6);
+                break;
+            case "5":
+                realBirthday = "19" + ssn.substring(0, 6);
+                break;
+            case "6":
+                realBirthday = "19" + ssn.substring(0, 6);
+                break;
+            case "7":
+                realBirthday = "20" + ssn.substring(0, 6);
+                break;
+            case "8":
+                realBirthday = "20" + ssn.substring(0, 6);
+                break;
+            default:
+                realBirthday = "19" + ssn.substring(0, 6);
+                break;
         }
 
         year = realBirthday.substring(0, 4) + "-";
         month = realBirthday.substring(4, 6) + "-";
         day = realBirthday.substring(6);
 
-        realBirthday = year+month+day;
-
-        return realBirthday;
+        return year + month + day;
     }
 
     // 주민번호로 성별추출
     public String setGenderType(String ssn) {
-        String genderType = "";
+        String genderType;
         String ssnSubFristNumber = ssn.substring(7, 8);
 
-        if("1".equals(ssnSubFristNumber)){
-            genderType = "1";
-        }else if("2".equals(ssnSubFristNumber)){
-            genderType = "2";
-        }else if("3".equals(ssnSubFristNumber)){
-            genderType = "1";
-        }else if("4".equals(ssnSubFristNumber)){
-            genderType = "2";
-        }else if("5".equals(ssnSubFristNumber)){
-            genderType = "5";
-        }else if("6".equals(ssnSubFristNumber)){
-            genderType = "6";
-        }else if("7".equals(ssnSubFristNumber)){
-            genderType = "5";
-        }else if("8".equals(ssnSubFristNumber)){
-            genderType = "6";
-        }else{
-            genderType = "";
+        switch (ssnSubFristNumber) {
+            case "1":
+                genderType = "1";
+                break;
+            case "2":
+                genderType = "2";
+                break;
+            case "3":
+                genderType = "1";
+                break;
+            case "4":
+                genderType = "2";
+                break;
+            case "5":
+                genderType = "5";
+                break;
+            case "6":
+                genderType = "6";
+                break;
+            case "7":
+                genderType = "5";
+                break;
+            case "8":
+                genderType = "6";
+                break;
+            default:
+                genderType = "";
+                break;
         }
         return genderType;
 
     }
 
-    /**
-     * 일반적인 엑셀파일이 아닌(CSV, TSV 등..) 파일을 XLSX로 변경
-     * @author KIMDONGUK
-     * @since 2020-01-13
-     * @return String
-     * @throws FileNotFoundException
-     * @throws Exception
-     */
-    public static String convertNonExcelToXLSX(FileVO fileVO, Constants.UPLOADS u, String originFileFormat) throws Exception {
-        String file_no = fileVO.getFile_id();
-
-        String originalCSVFilePath = fileVO.getFile_path();
-        String convertXLSXFilePath = Constants.getPATH(u) + file_no + ".xlsx";
-
-        SXSSFWorkbook workBook =null;
-        FileInputStream  fileInputStream = null;
-        InputStreamReader inputStreamReader = null;
-        FileOutputStream fileOutputStream = null;
-
-        try {
-            workBook = new SXSSFWorkbook();
-            Sheet sheet = workBook.createSheet("Sheet1");
-            String currentLine = null;
-
-            int RowNum = 0;
-
-            fileInputStream = new FileInputStream(originalCSVFilePath);
-            inputStreamReader = new InputStreamReader(fileInputStream, "EUC-KR");
-            BufferedReader br = new BufferedReader(inputStreamReader);
-
-            String spliter = "";
-
-            if("tsv".equals(originFileFormat)) {
-                spliter = "\t(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))";
-            }else if("txt".equals(originFileFormat)){
-                spliter = "\\|(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))";
-            }else {
-                spliter = ",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))";
-            }
-
-            while ((currentLine = br.readLine()) != null) {
-                String str[] = currentLine.split(spliter);
-
-                Row currentRow = sheet.createRow(RowNum);
-
-                for (int i = 0; i < str.length; i++) {
-                    try {
-                        //원수사 데이터 너무 이상해..
-                        str[i] = str[i].replaceAll("\" \"", "");
-                        str[i] = str[i].replaceAll("\"", "");
-                        str[i] = str[i].replaceAll("　", "");	//띄어쓰기, 탭 아님...
-                        str[i] = str[i].replaceAll("（", "(");
-                        str[i] = str[i].replaceAll("）", ")");
-                        str[i] = str[i].replaceAll("１", "1");	//아니 무슨 이런 데이터가 들어오냐..
-                    }catch (Exception e) {
-
-                    }
-
-                    currentRow.createCell(i).setCellValue(str[i]);
-                }
-
-                RowNum++;
-            }
-
-            fileOutputStream = new FileOutputStream(convertXLSXFilePath);
-            workBook.write(fileOutputStream);
-            workBook.close();
-
-        }catch(Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }finally {
-            workBook.close();
-            fileOutputStream.close();
-            inputStreamReader.close();
-            fileInputStream.close();
-        }
-
-        return convertXLSXFilePath;
-    }
 
     /**
-     * XLS 파일을 XLSX로 변경
-     * @author KIMDONGUK
-     * @since 2020-02-11
-     * @return String
-     * @throws Exception
-     */
-    public static String convertXLSToXLSX(FileVO fileVO, Constants.UPLOADS u) throws Exception {
-        String file_no = fileVO.getFile_id();
-
-        String originalCSVFilePath = fileVO.getFile_path();
-        String convertXLSXFilePath = Constants.getPATH(u) + file_no + ".xlsx";
-
-        InputStream in = null;
-        Workbook wbIn = null;
-        Workbook wbOut = null;
-        OutputStream out = null;
-
-        try {
-            //입력 파일 세팅
-            in = new BufferedInputStream(new FileInputStream(originalCSVFilePath));
-            wbIn = new HSSFWorkbook(in);
-
-            //저장될 파일 존재하는지 확인
-            File outF = new File(convertXLSXFilePath);
-
-            //똑같은 파일 있으면 삭제
-            if (outF.exists())
-                outF.delete();
-
-            wbOut = new XSSFWorkbook();
-            int sheetCnt = wbIn.getNumberOfSheets();
-
-            for (int i = 0; i < sheetCnt; i++) {
-                Sheet sIn = wbIn.getSheetAt(0);
-                Sheet sOut = wbOut.createSheet(sIn.getSheetName());
-                Iterator<Row> rowIt = sIn.rowIterator();
-
-                while (rowIt.hasNext()) {
-                    Row rowIn = rowIt.next();
-                    Row rowOut = sOut.createRow(rowIn.getRowNum());
-
-                    Iterator<Cell> cellIt = rowIn.cellIterator();
-
-                    while (cellIt.hasNext()) {
-                        Cell cellIn = cellIt.next();
-                        Cell cellOut = rowOut.createCell(cellIn.getColumnIndex(), cellIn.getCellType());
-
-                        switch (cellIn.getCellType()) {
-                            case BLANK:
-                                break;
-
-                            case BOOLEAN:
-                                cellOut.setCellValue(cellIn.getBooleanCellValue());
-                                break;
-
-                            case ERROR:
-                                cellOut.setCellValue(cellIn.getErrorCellValue());
-                                break;
-
-                            case FORMULA:
-                                cellOut.setCellFormula(cellIn.getCellFormula());
-                                break;
-
-                            case NUMERIC:
-                                cellOut.setCellValue(cellIn.getNumericCellValue());
-                                break;
-
-                            case STRING:
-                                cellOut.setCellValue(cellIn.getStringCellValue());
-                                break;
-
-                            default :
-                                cellOut.setCellValue("");
-                                break;
-                        }
-
-                        CellStyle styleIn = cellIn.getCellStyle();
-                        CellStyle styleOut = cellOut.getCellStyle();
-
-                        styleOut.setDataFormat(styleIn.getDataFormat());
-                        cellOut.setCellComment(cellIn.getCellComment());
-                    }
-                }
-            }
-
-            out = new BufferedOutputStream(new FileOutputStream(outF));
-            wbOut.write(out);
-
-        }catch(Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }finally {
-            if(wbOut != null)
-                wbOut.close();
-
-            if(out != null)
-                out.close();
-
-            if(wbIn != null)
-                wbIn.close();
-
-            if(in != null)
-                in.close();
-
-        }
-
-        return convertXLSXFilePath;
-    }
-
-    /**
-     *
      * ConvertVOToMap
-     *
+     * <p>
      * 최초 생성일  : 2020. 03. 20.
      * file : CommonUtil.java
-     * @param  obj
+     *
+     * @param obj
      * @return Map
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static HashMap<String, Object> ConvertVOToMap(Object obj) {
         try {
-            Field[] fields = obj.getClass().getDeclaredFields();	//VO
+            Field[] fields = obj.getClass().getDeclaredFields();    //VO
             HashMap<String, Object> resultMap = new HashMap();
 
-            for(int i=0; i <= fields.length-1; i++) {
+            for (int i = 0; i <= fields.length - 1; i++) {
                 fields[i].setAccessible(true);
                 resultMap.put(fields[i].getName(), fields[i].get(obj));
             }
 
-            fields = obj.getClass().getSuperclass().getDeclaredFields();	//BaseVO
+            fields = obj.getClass().getSuperclass().getDeclaredFields();    //BaseVO
 
-            for(int i=0; i <= fields.length-1; i++) {
+            for (int i = 0; i <= fields.length - 1; i++) {
                 fields[i].setAccessible(true);
                 resultMap.put(fields[i].getName(), fields[i].get(obj));
             }
 
-            log.debug("resultMap[{}]" , resultMap);
+            log.debug("resultMap[{}]", resultMap);
 
             return resultMap;
 
-        } catch (IllegalArgumentException e) {
-
-        } catch (IllegalAccessException e) {
-
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.getStackTrace();
         }
 
         return null;
     }
 
-    public static boolean isTrueCustomerId(String customerId) throws ParseException
-    {
+    public static boolean isTrueCustomerId(String customerId) throws ParseException {
         boolean flag = false;
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
@@ -2009,11 +1757,10 @@ public class CommonUtil {
 
         // 주민&기준일 비교 시 기준일 넘기면 1 기준일 넘기지 않으면 0.
         if (birthDate.compareTo(dateChk) > 0) {
-            flag = false;
-            return flag;
+            return false;
         }
 
-        int[] multiply = { 2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5 };
+        int[] multiply = {2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5};
         for (int i = 0; i < multiply.length; i++) {
             chkNum += (customerId.charAt(i) - '0') * multiply[i];
         }
@@ -2056,7 +1803,117 @@ public class CommonUtil {
         } catch (Exception e) {
             log.error(e.getMessage());
         } finally {
-            if(out != null) out.close();
+            if (out != null) out.close();
         }
+    }
+
+    public static String encrypt(String encryptkey, String input_data) {
+
+        try {
+            if (null != encryptkey) {
+                StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+                encryptor.setPassword(encryptkey);
+
+                if (null != input_data) {
+
+                    log.info("----------------------");
+                    log.info("plan : " + input_data);
+                    log.info("encrypted : " + encryptor.encrypt(input_data));
+                    log.info("----------------------");
+
+                } else {
+                    return "암호화 대상 데이터가 없습니다.";
+                }
+
+            } else {
+                return "암호화키를 입력하세요";
+            }
+        } catch (Exception e) {
+            return "오류 발생";
+        }
+        return "암호화 성공";
+    }
+
+    public static String encryptMap(String encryptkey, Map<String, String> input_data) {
+
+        try {
+            if (null != encryptkey) {
+                StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+                encryptor.setPassword(encryptkey);
+
+                if (null != input_data) {
+                    for (String mapkey : input_data.keySet()) {
+                        log.info("----------------------");
+                        log.info("key:" + mapkey);
+                        log.info("value:" + input_data.get(mapkey));
+                        log.info("encrypt:" + encryptor.encrypt(input_data.get(mapkey)));
+                        log.info("----------------------");
+                    }
+                } else {
+                    return "암호화 대상 데이터가 없습니다.";
+                }
+
+            } else {
+                return "암호화키를 입력하세요";
+            }
+        } catch (Exception e) {
+            return "오류 발생";
+        }
+        return "암호화 성공";
+    }
+
+    public static String decrypt(String encryptkey, String input_data) {
+
+        try {
+            if (null != encryptkey) {
+                StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+                encryptor.setPassword(encryptkey);
+
+                if (null != input_data) {
+
+                    log.info("----------------------");
+                    log.info("encrypted :" + input_data);
+                    log.info("plain :" + encryptor.decrypt(input_data));
+                    log.info("----------------------");
+
+                } else {
+                    return "암호화 대상 데이터가 없습니다.";
+                }
+
+            } else {
+                return "암호화키를 입력하세요";
+            }
+        } catch (Exception e) {
+            return "오류 발생";
+        }
+        return "디코드 성공";
+    }
+
+    public static String decryptMap(String encryptkey, Map<String, String> input_data) {
+
+        try {
+            if (null != encryptkey) {
+                StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+                encryptor.setPassword(encryptkey);
+
+                if (null != input_data) {
+                    for (String mapkey : input_data.keySet()) {
+                        log.info("----------------------");
+                        log.info("key:" + mapkey);
+                        log.info("value:" + input_data.get(mapkey));
+                        log.info("encrypt:" + encryptor.decrypt(input_data.get(mapkey)));
+                        log.info("----------------------");
+                    }
+                } else {
+                    return "암호화 대상 데이터가 없습니다.";
+                }
+
+            } else {
+                return "암호화키를 입력하세요";
+            }
+        } catch (Exception e) {
+            return "오류 발생";
+        }
+        return "디코드 성공";
     }
 }
