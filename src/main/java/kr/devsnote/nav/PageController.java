@@ -12,6 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class PageController {
 
+    @GetMapping("/")
+    public ModelAndView goHome(HttpServletRequest req) {
+        log.info("[Pg] /board");
+        ModelAndView mv = new ModelAndView("index");
+        return mv;
+    }
+
     @GetMapping("/board")
     public ModelAndView goItems(HttpServletRequest req) {
         log.info("[Pg] /board");
