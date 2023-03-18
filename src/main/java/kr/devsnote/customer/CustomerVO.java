@@ -20,4 +20,6 @@ public class CustomerVO {
     String file_id;
     String in_id;
     String up_id;
+    int offset;
+    int row_cnt;
 }

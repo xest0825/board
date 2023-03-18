@@ -34,15 +34,17 @@ public class FileService {
         }
         HashMap<String, Object> retMap = new HashMap<String, Object>();
         FileVO fileInfo = new FileVO();
+
         // 원래 파일 이름 추출
         String origName = file.getOriginalFilename();
-        log.info("origName : " + origName);
         fileInfo.setOrg_file_name(origName);
+        log.info("origName : " + fileInfo.getOrg_file_name());
 
         // 파일 이름으로 쓸 uuid 생성
         String uuid = UUID.randomUUID().toString();
-        log.info("file_id : " + uuid);
+        //log.info("file_id : " + uuid);
         fileInfo.setFile_id(uuid);
+        log.info("file_id : " + fileInfo.getFile_id());
 
         // 확장자 추출(ex : .png)
         String extension = origName.substring(origName.lastIndexOf("."));
@@ -57,7 +59,8 @@ public class FileService {
         fileInfo.setFile_name(savedName);
 
         // 파일을 불러올 때 사용할 파일 경로
-        String savedPath = fileDir + savedName;
+        String savedPath = "C:\\weowefsodf\\" + savedName;
+        //String savedPath = fileDir + savedName;
         log.info("savedPath : " + savedPath);
         fileInfo.setFile_path(savedPath);
 

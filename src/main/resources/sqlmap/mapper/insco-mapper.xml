@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Insco">
+
+    <select id="getInscoList" parameterType="kr.devsnote.insco.InscoVO" resultType="Hmap">
+        /* insco-mapper.xml getInscoList  코드 조회 */
+        <include refid="getInscoListSql" />
+    </select>
+
+    <sql id="getInscoListSql">
+          SELECT tb1.insco_cd
+               , tb1.insco_nm
+               , tb1.sort_no
+               , DATE_FORMAT(tb1.in_dtm, '%Y-%m-%d %H:%i:%s') in_dtm
+            FROM tb_insco tb1
+        <where>
+                 1 = 1
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(insco_cd)'>
+             AND tb1.insco_cd = #{insco_cd}
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(insco_nm)'>
+             AND tb1.insco_nm = #{insco_nm}
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(search_word)'>
+             AND (   UPPER(tb1.insco_cd) LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                  OR UPPER(tb1.insco_nm) LIKE CONCAT('%', UPPER(#{search_word}), '%')
+                 )
+            </if>
+        ORDER BY tb1.sort_no, tb1.insco_nm
+        </where>
+    </sql>
+
+    <insert id="insertInsco" parameterType="kr.devsnote.insco.InscoVO">
+        /* insco-mapper.xml insertInsco 코드 입력 */
+        INSERT
+          INTO tb_insco
+             (
+               insco_cd
+             , insco_nm
+             , sort_no
+             , in_dtm
+             )
+        VALUES
+             (
+               #{insco_cd}
+             , #{insco_nm}
+             , #{sort_no}
+             , now()
+             )
+    </insert>
+
+    <update id="updateInsco" parameterType="kr.devsnote.insco.InscoVO">
+        /* insco-mapper.xml updateInsco 코드 수정 */
+        UPDATE tb_insco
+           SET up_dtm = NOW()
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(insco_nm)'>
+            , insco_nm = #{insco_nm}
+        </if>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(sort_no)'>
+            , sort_no = #{sort_no}
+        </if>
+        WHERE insco_cd = #{insco_cd}
+    </update>
+
+    <delete id="deleteInsco" parameterType="kr.devsnote.insco.InscoVO">
+        /* code-mapper.xml deleteInsco 코드 삭제 */
+        DELETE FROM tb_insco
+         WHERE insco_cd = #{insco_cd}
+    </delete>
+
+</mapper>

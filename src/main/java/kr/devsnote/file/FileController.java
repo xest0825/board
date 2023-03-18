@@ -1,5 +1,6 @@
 package kr.devsnote.file;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import kr.devsnote.excel.ExcelHandler;
 import kr.devsnote.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,15 +36,11 @@ public class FileController {
     public ResponseEntity<HashMap<String, Object>> uploadFile(@RequestParam(value="file", required = false) MultipartFile file) throws IOException {
         log.info("[POST] /upload");
         HashMap<String, Object> map = new HashMap<String, Object>();
+        //log.info("original file name : " + file.getOriginalFilename());
         map = fileService.saveFile(file);
 
-        /*
-        for (MultipartFile multipartFile : files) {
-            map = fileService.saveFile(multipartFile);
-        }
-         */
-
         if (map.get("file_id") != null) {
+        //if (file.getOriginalFilename() != null) {
             map.put("result", "OK");
         } else {
             map.put("result", "FAIL");

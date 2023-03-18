@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Contract">
+
+    <select id="getContractList" parameterType="kr.devsnote.contract.ContractVO" resultType="Hmap">
+        /* contract-mapper.xml getContractList 계약 목록 조회 */
+        <include refid="getContractListSql"/>
+        LIMIT ${offset}, ${row_cnt}
+    </select>
+
+    <sql id="getContractListSql">
+           SELECT tb1.emp_cd      /* varchar(20) NN  '사번' */
+                , tb1.insco_cd    /* varchar(3)  NN  '보험사코드' */
+                , tb1.inspol_no   /* varchar(40) NN  '증권번호' */
+                , tb1.cont_date   /* varchar(10) NN  '계약일자' */
+                , tb1.first_prem  /* int(11) '최초보험료' */
+                , tb1.usi_prem    /* int(11) '유지보험료' */
+                , tb1.first_hwan  /* int(11) '최초보험사성적' */
+                , tb1.usi_hwan    /* int(11) '유지보험사성적' */
+                , tb1.rate        /* float '조정계수' */
+                , tb1.status      /* varchar(10) NN  '상태 : 정상(정상, 연체), 미유지(실효, 해약, 취소)' */
+                , tb1.cnt         /* int(11) NN  '회차' */
+                , tb1.in_emp_cd   /* varchar(20) '입력자 사번' */
+                , DATE_FORMAT(tb1.in_dtm, '%Y-%m-%d %H:%i:%S') in_dtm /* datetime '입력일시' */
+                , tb1.up_emp_cd   /* varchar(20) '수정자 사번' */
+                , DATE_FORMAT(tb1.up_dtm, '%Y-%m-%d %H:%i:%S') up_dtm /* datetime '수정일시' */
+             FROM tb_contract tb1
+             LEFT OUTER JOIN tb_insco tb2
+               ON tb1.insco_cd = tb2.insco_cd
+        <where>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(inspol_no)'>
+                AND tb1.inspol_no = #{inspol_no}
+            </if>
+        </where>
+    </sql>
+
+</mapper>

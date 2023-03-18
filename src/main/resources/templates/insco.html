@@ -1,0 +1,203 @@
+<html xmlns:tm="http://www.thymeleaf.org">
+<title>Home</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="/js/jquery-3.6.0.min.js"></script>
+<script src="/js/table-pagination.js"></script>
+<style>
+    table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
+    tr {border:solid 1px black; border-collapse: collapse}
+    th {border:dotted 1px black; border-collapse: collapse}
+    td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
+</style>
+<script>
+    $(document).ready(function(){
+
+        $('#searchBtn').on('click', function(){
+            console.log('search');
+            search();
+        });
+
+        $('#insertBtn').on('click', function() {
+            console.log('insert');
+            let cd = $('#cd').val();
+            let cd_nm = $('#cd_nm').val();
+            let grp_cd = $('#grp_cd').val();
+            let sort_no = $('#sort_no').val();
+            console.log(cd + ', ' + cd_nm + ', ' + grp_cd + ', ' + sort_no);
+
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['cd_nm'] = cd_nm;
+            codeData['grp_cd'] = grp_cd;
+            codeData['sort_no'] = sort_no;
+            console.log(codeData);
+
+
+            $.ajax({
+                url: '/codes'
+                , type: 'POST'
+                , data: JSON.stringify(codeData)
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#updateBtn').on('click', function() {
+            console.log('update');
+            let cd = $('#cd').val();
+            let cd_nm = $('#cd_nm').val();
+            let grp_cd = $('#grp_cd').val();
+            let sort_no = $('#sort_no').val();
+            console.log(cd + ', ' + cd_nm + ', ' + grp_cd + ', ' + sort_no);
+
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['cd_nm'] = cd_nm;
+            codeData['grp_cd'] = grp_cd;
+            codeData['sort_no'] = sort_no;
+            console.log(codeData);
+
+            $.ajax({
+                url: '/codes'
+                , type: 'PUT'
+                , data: JSON.stringify(codeData)
+                , contentType: 'application/json; charset=UTF-8'
+                , success: function (data) {
+                    console.log(data);
+                }
+                , error: function (req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#deleteBtn').on('click', function(){
+            console.log('delete');
+            let cd = $('#cd').val();
+            let grp_cd = $('#grp_cd').val();
+            console.log(cd + ', '  + grp_cd );
+
+            let codeData = {};
+            codeData['cd'] = cd;
+            codeData['grp_cd'] = grp_cd;
+            console.log(codeData);
+
+            $.ajax({
+                url : '/codes'
+                , type : 'DELETE'
+                , data : JSON.stringify(codeData)
+                , contentType : 'application/json; charset=UTF-8'
+                , success : function(data){
+                    console.log(data);
+                }
+                , error : function(req, status, error) {
+                    console.log(req + status + error);
+                }
+            });
+
+        });
+
+        $('#initBtn').on('click', function(){
+            console.log('init');
+            $('#search_word').val('');
+            $('#cd').val('');
+            $('#cd_nm').val('');
+            $('#grp_cd').val('');
+            $('#sort_no').val('');
+        });
+
+    });
+
+    function search(){
+
+        let search_word = $('#search_word').val();
+
+        let inscoData = {};
+        inscoData['search_word'] = search_word;
+        console.log(inscoData);
+        $.ajax({
+            url: '/inscos'
+            , type: 'GET'
+            , data: inscoData
+            , contentType: 'application/json; charset=UTF-8'
+            , success: function (data) {
+                console.log(data);
+                drawTable(data);
+            }
+            , error: function (req, status, error) {
+                console.log(req + status + error);
+            }
+        });
+    }
+
+    function drawTable(data){
+
+        let html = '';
+        if (data.length == 0) {
+            html += '<tr><td colspan="3" style="text-align:center;">조회된 결과가 없습니다. </td></tr>';
+            $('#tb1').html(html);
+        } else {
+            for (let i = 0; i < data.length; i++) {
+
+                let insco = {};
+                insco = data[i];
+                console.log(insco);
+
+                html += '<tr>';
+                html += ' <td>' + insco['insco_cd'] + '</td>';
+                html += ' <td>' + insco['insco_nm'] + '</td>';
+                html += ' <td>' + insco['sort_no'] + '</td>';
+                html += '</tr>';
+
+                $('#tb1').html(html);
+            }
+        }
+
+        $("#tb").createTablePagination({
+            rowPerPage: 10,
+            // paginationColor: '#FFA4B6',
+            paginationColor: '#6F7AD7',
+            fontColor: '#0B1354',
+            paginationStyle: 'Borderless',
+            jumpPage: 'Disabled'
+        });
+    }
+
+</script>
+<body>
+    <input id="search_word" type="text" placeholder="보험사코드|보험사명" style="width:200px;">
+
+    <button id="searchBtn">조회</button>
+    <!--
+    <button id="insertBtn">입력</button>
+    <button id="updateBtn">수정</button>
+    <button id="deleteBtn">삭제</button>
+    -->
+    <button id="initBtn">초기화</button>
+
+    <table id="tb">
+        <colgroup>
+            <col style="width:30%;"/>
+            <col style="width:30%;"/>
+            <col style="width:40%;"/>
+        </colgroup>
+        <thead style="background-color:#6F7AD7;color:#eaeaea;">
+            <th>보험사코드</th>
+            <th>보험사명</th>
+            <th>순번</th>
+        </thead>
+        <tbody id="tb1">
+
+        </tbody>
+    </table>
+    <br/>
+
+</body>
+</html>

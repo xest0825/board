@@ -125,10 +125,10 @@
         }
 
         function uploadFile(){
-            var form = new FormData();
+            let form = new FormData();
             form.append( "file", $("#file")[0].files[0] );
 
-            jQuery.ajax({
+            $.ajax({
                 url : "/upload"
                 , type : "POST"
                 , processData : false
@@ -136,13 +136,12 @@
                 , data : form
                 , success:function(response) {
                     console.log("성공");
-                    console.log(response);
-                    $('#file_id').val(response.file_id);
-                    getFileInfo();
+                    console.log(response.result);
+                    //$('#file_id').val(response.file_id);
+                    //getFileInfo();
                 }
-                ,error: function (jqXHR)
-                {
-                    console.log(jqXHR.responseText);
+                ,error: function (err) {
+                    console.log(err.responseText);
                 }
             });
 
@@ -175,6 +174,12 @@
 </head>
 
 <body>
+<!--
+<form>
+    <input name="file">
+    <submit></submit>
+</form>
+-->
     <h2>등록하세요. 냉큼</h2>
     <table>
         <thead>

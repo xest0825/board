@@ -62,4 +62,41 @@ public class PageController {
         return mv;
     }
 
+    @GetMapping("/insco-list")
+    public ModelAndView goinscoList(HttpServletRequest req) {
+        log.info("[Pg] /insco-list");
+        ModelAndView mv = new ModelAndView("insco");
+        return mv;
+    }
+
+    @GetMapping("/employee-list")
+    public ModelAndView goEmployeeList(HttpServletRequest req) {
+        log.info("[Pg] /employees");
+        ModelAndView mv = new ModelAndView("employees");
+        return mv;
+    }
+
+    @GetMapping("/org-list")
+    public ModelAndView goOrgList(HttpServletRequest req) {
+        log.info("[Pg] /org-list");
+        ModelAndView mv = new ModelAndView("org");
+        return mv;
+    }
+
+    @GetMapping("/contract-list")
+    public ModelAndView goContractList(HttpServletRequest req) {
+        log.info("[Pg] /contract-list");
+        ModelAndView mv = new ModelAndView("contract");
+        return mv;
+    }
+
+    @GetMapping("/contract-statistics")
+    public ModelAndView goContractStatistics(HttpServletRequest req) {
+        log.info("[Pg] /contract-statistics");
+        ModelAndView mv = new ModelAndView("contract_statistics");
+        return mv;
+    }
+
+
+
 }
