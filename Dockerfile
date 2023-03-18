@@ -33,6 +33,7 @@ ENTRYPOINT ["java", "-jar", "/board-0.1.jar"]
 # docker run -p
 
 # 서버에서 접속할때도 결국 jar 파일만 존재하면 build 하고 run 할수 있다.
+# GitLab Container Registry에 추가하여 해당저장소에서 가지고 온다.
 
 
 
