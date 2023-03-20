@@ -163,6 +163,33 @@ public class FileService {
         return ret;
     }
 
+    public List<HashMap<String, Object>> getFileDownloadLogList(FileVO vo) {
+        return fileDAO.getFileDownloadLogList(vo);
+    }
+
+    public HashMap<String, Object> getMinDownloadingFileInfo(FileVO vo) {
+        HashMap<String, Object> minMap;
+        HashMap<String, Object> retMap;
+        minMap = fileDAO.getMinDownloadingFileInfo(vo);
+        vo.setFile_id(minMap.get("file_id").toString());
+        retMap = fileDAO.getFileInfo(vo);
+        return retMap;
+    }
+
+    public int insertFileDownloadLog(FileVO vo) {
+        return fileDAO.insertFileDownloadLog(vo);
+    }
+    public int updateFileDownloadLog(FileVO vo) {
+        return fileDAO.updateFileDownloadLog(vo);
+    }
+    public int deleteFileDownloadLog(FileVO vo) {
+        return fileDAO.deleteFileDownloadLog(vo);
+    }
+
+    public int updateExpirationFileDownloadLog(FileVO vo) {
+        return fileDAO.updateExpirationFileDownloadLog(vo);
+    }
+
 
 
 }

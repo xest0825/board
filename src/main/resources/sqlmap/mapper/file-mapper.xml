@@ -93,5 +93,114 @@
          WHERE file_id = #{file_id}
     </delete>
 
+    <select id="getFileDownloadLogList" parameterType="kr.devsnote.file.FileVO" resultType="Hmap">
+        SELECT tb1.seq
+        , tb1.file_id
+        , tb1.status
+        , tb1.in_ip
+        , DATE_FORMAT(tb1.start_dtm, '%Y-%m-%d %H:%i:%S') start_dtm
+        , DATE_FORMAT(tb1.end_dtm, '%Y-%m-%d %H:%i:%S') end_dtm
+        , DATE_FORMAT(tb1.in_dtm, '%Y-%m-%d %H:%i:%S') in_dtm
+        FROM tb_file_download_log tb1
+        <where>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(file_id)'>
+                AND tb1.file_id = #{file_id}
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(status)'>
+                AND tb1.status = #{status}
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(seq)'>
+                AND tb1.seq = #{seq}
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(srch_start_dtm)'>
+                AND tb1.start_dtm >= DATE_FORMAT(#{srch_start_dtm}, '%Y-%m-%d %H:%i%S')
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(srch_end_dtm)'>
+                AND tb1.end_dtm <![CDATA[ <= ]]> DATE_FORMAT(#{srch_start_dtm}, '%Y-%m-%d %H:%i%S')
+            </if>
+            <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(diff_min)'>
+                AND TIMESTAMPDIFF(MINUTE, tb1.start_dtm, now()) >= ${diff_min}
+            </if>
+        </where>
+    </select>
+
+    <select id="getMinDownloadingFileInfo" parameterType="kr.devsnote.file.FileVO" resultType="Hmap">
+        SELECT tb0.file_id
+             , COUNT(tb1.seq) cnt
+        FROM tb_file_info tb0
+                 LEFT OUTER JOIN
+             (SELECT * FROM tb_file_download_log
+              WHERE status = 'S') tb1
+             ON tb0.file_id = tb1.file_id
+        WHERE tb0.category = #{category}
+        GROUP BY tb0.file_id
+        ORDER BY COUNT(tb1.seq) DESC
+            LIMIT 0, 1
+    </select>
+
+    <insert id="insertFileDownloadLog" parameterType="kr.devsnote.file.FileVO" >
+        <selectKey keyProperty="seq" resultType="String" order="AFTER">
+            SELECT CONCAT(LAST_INSERT_ID()) AS seq FROM DUAL
+        </selectKey>
+        INSERT
+        INTO tb_file_download_log
+        ( file_id
+        , start_dtm
+        , end_dtm
+        , status
+        , in_ip
+        , msg
+        , in_dtm
+        )
+        VALUES
+        ( #{file_id}
+        , DATE_FORMAT(#{start_dtm}, '%Y-%m-%d %H:%i:%S')
+        , DATE_FORMAT(#{end_dtm}, '%Y-%m-%d %H:%i:%S')
+        , #{status}
+        , #{in_ip}
+        , SUBSTR(#{msg}, 1, 1000)
+        , NOW()
+        )
+    </insert>
+
+    <update id="updateFileDownloadLog" parameterType="kr.devsnote.file.FileVO" >
+        UPDATE tb_file_download_log
+        SET up_dtm  = now()
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(file_id)'>
+            , file_id = #{file_id}
+        </if>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(start_dtm)'>
+            , start_dtm = DATE_FORMAT(#{start_dtm}, '%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(end_dtm)'>
+            , end_dtm = DATE_FORMAT(#{end_dtm}, '%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(status)'>
+            , status = #{status}
+        </if>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(in_ip)'>
+            , in_ip = #{in_ip}
+        </if>
+        <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(msg)'>
+            , msg = SUBSTR(#{msg}, 1, 1000)
+        </if>
+        WHERE seq = #{seq}
+    </update>
+
+    <delete id="deleteFileDownloadLog" parameterType="kr.devsnote.file.FileVO" >
+        DELETE FROM tb_file_download_log
+        WHERE seq = #{seq}
+    </delete>
+
+    <update id="updateExpirationFileDownloadLog" parameterType="kr.devsnote.file.FileVO" >
+        UPDATE tb_file_download_log
+        SET status = 'F'
+          , end_dtm = NOW()
+          , up_dtm = NOW()
+          , msg = 'connection timeout'
+        WHERE status = 'S'
+          AND TIMESTAMPDIFF(MINUTE, start_dtm, now()) >= 60
+    </update>
+
 
 </mapper>

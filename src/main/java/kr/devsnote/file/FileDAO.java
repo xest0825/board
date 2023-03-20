@@ -69,4 +69,26 @@ public class FileDAO {
     public int deleteFileInfo(FileVO vo) {
         return sqlSession.delete(SQL_PREFIX + "deleteFileInfo", vo);
     }
+
+    public List<HashMap<String, Object>> getFileDownloadLogList(FileVO vo) {
+        return sqlSession.selectList(SQL_PREFIX + "getFileDownloadLogList", vo);
+    }
+
+    public HashMap<String, Object> getMinDownloadingFileInfo(FileVO vo) {
+        return sqlSession.selectOne(SQL_PREFIX + "getMinDownloadingFileInfo", vo);
+    }
+
+    public int insertFileDownloadLog(FileVO vo) {
+        return sqlSession.insert(SQL_PREFIX + "insertFileDownloadLog", vo);
+    }
+    public int updateFileDownloadLog(FileVO vo) {
+        return sqlSession.update(SQL_PREFIX + "updateFileDownloadLog", vo);
+    }
+    public int deleteFileDownloadLog(FileVO vo) {
+        return sqlSession.delete(SQL_PREFIX + "deleteFileDownloadLog", vo);
+    }
+
+    public int updateExpirationFileDownloadLog(FileVO vo) {
+        return sqlSession.update(SQL_PREFIX + "updateExpirationFileDownloadLog", vo);
+    }
 }

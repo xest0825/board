@@ -27,4 +27,17 @@ public class FileVO {
     private String excel_path;
     private String system_type;
 
+    private String use_yn;
+    private String display_yn;
+    private String seq;
+    private String start_dtm;
+    private String end_dtm;
+    private String status;
+    private String srch_start_dtm;
+    private String srch_end_dtm;
+    private int diff_min;
+    private String in_ip;
+    private String msg;
+    private String category;
+
 }

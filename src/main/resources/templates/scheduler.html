@@ -1,0 +1,91 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tm="http://www.thymeleaf.org">
+<title>Home</title>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <style>
+        table {border:solid 1px black; border-collapse: collapse; width: 100%; margin-top:5px;}
+        tr {border:solid 1px black; border-collapse: collapse}
+        th {border:dotted 1px black; border-collapse: collapse}
+        td {border:dotted 1px black; border-collapse: collapse; padding:5px;}
+    </style>
+    <script>
+        $(document).ready(function(){
+            $('#saveBtn').on('click', function(){
+                let scheduleData = {
+                    schedule : $('#schedule').val()
+                }
+                $.ajax({
+                    url: '/schedule-cron'
+                    , type: 'PUT'
+                    , data: JSON.stringify(scheduleData)
+                    , contentType: 'application/json; charset=UTF-8'
+                    , success: function (data) {
+                        console.log(data.schedule);
+                        $('#contents').text(data.schedule);
+                    }
+                    , error: function (req, status, error) {
+                        console.log(req + status + error);
+                    }
+                });
+            });
+            $('#pauseBtn').on('click', function(){
+                let scheduleData = {
+                    schedule : $('#schedule').val()
+                }
+                $.ajax({
+                    url: '/schedule-pause'
+                    , type: 'PUT'
+                    , data: JSON.stringify(scheduleData)
+                    , contentType: 'application/json; charset=UTF-8'
+                    , success: function (data) {
+                        console.log(data.schedule);
+                        $('#contents').text(data.msg);
+                    }
+                    , error: function (req, status, error) {
+                        console.log(req + status + error);
+                    }
+                });
+            });
+            $('#startBtn').on('click', function(){
+                let scheduleData = {
+                    schedule : $('#schedule').val()
+                }
+                $.ajax({
+                    url: '/schedule-start'
+                    , type: 'PUT'
+                    , data: JSON.stringify(scheduleData)
+                    , contentType: 'application/json; charset=UTF-8'
+                    , success: function (data) {
+                        console.log(data.schedule);
+                        $('#contents').text(data.msg);
+                    }
+                    , error: function (req, status, error) {
+                        console.log(req + status + error);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+    <div>
+        <select placeholder="* * * * * *" id="schedule">
+            <option value="0,30 * * * * *">매 30초 마다</option>
+            <option value="0 * * * * *">매 1분 마다(00초)</option>
+            <option value="0 0 * * * *">매 1시간 마다(00분)</option>
+            <option value="0 0 0 * * *">매 일 마다(00:00:00)</option>
+            <option value="0 0 0 1 * *">매 월 마다(1일 00:00:00)</option>
+        </select>
+        <button id="saveBtn">저장</button>
+        <button id="pauseBtn">멈춤</button>
+        <button id="startBtn">멈춤</button>
+    <br>
+    </div>
+    <div id="contents" style="margin-top:10px;border:1px solid black;min-height:20px;padding: 5px;">
+    </div>
+</body>
+</html>

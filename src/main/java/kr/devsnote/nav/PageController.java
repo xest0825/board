@@ -104,6 +104,13 @@ public class PageController {
         return mv;
     }
 
+    @GetMapping("/scheduler")
+    public ModelAndView goScheduler(HttpServletRequest req) {
+        log.info("[Pg] /scheduler");
+        ModelAndView mv = new ModelAndView("scheduler");
+        return mv;
+    }
+
 
 
 }
