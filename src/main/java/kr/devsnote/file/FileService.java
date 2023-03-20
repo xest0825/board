@@ -17,9 +17,6 @@ import java.util.*;
 @Service
 public class FileService {
 
-    @Value("${file.dir}")
-    private String fileDir;
-
     @Autowired
     private FileDAO fileDAO;
 

@@ -15,7 +15,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -1259,7 +1259,7 @@ public class CommonUtil {
      * @throws Exception
      */
     public static void sendjson(HttpServletResponse response, JSONObject jsononject, int resultcode) {
-
+        log.info("CommonUtil.sendjson");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(resultcode);
@@ -1915,5 +1915,81 @@ public class CommonUtil {
             return "오류 발생";
         }
         return "디코드 성공";
+    }
+
+    public static String getLocalIp(){
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+    }
+
+    /* 만약 공인 IP없으면 내부 IP 가져오도록 처리 */
+    @SuppressWarnings("rawtypes")
+    public static String getCurrentEnvironmentNetworkIp(){
+        Enumeration netInterfaces = null;
+
+        try {
+            netInterfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            return getLocalIp();
+        }
+
+        while (netInterfaces.hasMoreElements()) {
+            NetworkInterface ni = (NetworkInterface)netInterfaces.nextElement();
+            Enumeration address = ni.getInetAddresses();
+
+            if (address == null) {
+                return getLocalIp();
+            }
+
+            while (address.hasMoreElements()) {
+                InetAddress addr = (InetAddress)address.nextElement();
+
+                if (!addr.isLoopbackAddress() && !addr.isSiteLocalAddress() && !addr.isAnyLocalAddress() ) {
+                    String ip = addr.getHostAddress();
+
+                    if( ip.indexOf(".") != -1 && ip.indexOf(":") == -1 ){
+                        return ip;
+                    }
+                }
+            }
+        }
+
+        return getLocalIp();
+    }
+
+    public static String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        log.debug("> X-FORWARDED-FOR : " + ip);
+
+        if (ip == null) {
+            ip = request.getHeader("Proxy-Client-IP");
+            log.debug("> Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+            log.debug(">  WL-Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+            log.debug("> HTTP_CLIENT_IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            log.debug("> HTTP_X_FORWARDED_FOR : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getRemoteAddr();
+            log.debug("> getRemoteAddr : "+ip);
+        }
+
+        if(ip.equals("0:0:0:0:0:0:0:1") || ip.equals("127.0.0.1")) {
+            ip = getCurrentEnvironmentNetworkIp();
+        }
+        log.info("> Result : IP Address : "+ip);
+
+        return ip;
     }
 }

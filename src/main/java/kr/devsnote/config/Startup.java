@@ -19,6 +19,9 @@ public class Startup {
 	@Value("${Globals.Stage}")
 	private String stage;
 
+	@Value("{file.dir}")
+	private String localFileDir;
+
 	private static String OS = System.getProperty("os.name").toLowerCase();
 
 	@PostConstruct
@@ -48,7 +51,8 @@ public class Startup {
 
 			if ("LOCAL".equals(stage)) {
 				log.info("stage : " + stage);
-				wrPath = "/Users/yoonsik/IdeaProjects/board/";
+				//wrPath = "/Users/yoonsik/IdeaProjects/board/";
+				wrPath = localFileDir;
 			} else {
 				wrPath = "/home/devsnote/board";
 			}

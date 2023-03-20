@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Log">
+
+	<!--  액션 이력 -->
+	<select id="getActionLogList" parameterType="kr.devsnote.log.ActionLogVO" resultType="Hmap">
+		SELECT tb1.action_seq
+			 , DATE_FORMAT(tb1.action_dtm, '%Y-%m-%d %H-%i-%S') AS action_dtm 		/* DATETIME  		'액션 일시'   */
+		     , tb1.action_ctg		/* VARCHAR(10)		'액션 분류'	  */
+			 , tb1.user_id 			/* VARCHAR(32)  	'사용자 ID'   */
+			 , tb1.action_method	/* VARHAR(256) 		'요청 메서드' */
+			 , tb1.action_url 		/* VARCHAR(200)  	'액션 URL'    */
+			 , tb1.action_env		/* TEXT 			'액션 환경'   */
+			 , tb1.params 			/* TEXT  			'파라미터'    */
+			 , tb1.sys_typ			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , tb1.user_ip
+			 , tb1.memo
+		  FROM tb_sy_action_log tb1
+		 WHERE 1 = 1
+		   <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(action_ctg)'>
+		   AND tb1.action_ctg  = #{action_ctg}
+		   </if>
+		   <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(srch_dt_from)'>
+	       AND tb1.action_dtm >= DATE_FORMAT(#{srch_dt_from}, '%Y-%m-%d')
+	       </if>
+	  ORDER BY tb1.action_dtm DESC
+	</select>
+	
+	<insert id="insertActionLog" parameterType="Hmap" >
+		/* log-mapper.xml insertActionLog 액션 이력 등록 */
+		INSERT
+		  INTO tb_sy_action_log
+		     ( 
+		       action_dtm 		/* DATETIME  		'액션 일시'   */
+		     , action_ctg		/* VARCHAR(10)		'액션 분류'	  */
+			 , user_id 			/* VARCHAR(32)  	'사용자 ID'   */
+			 , action_url 		/* VARCHAR(200)  	'액션 URL'    */
+			 , action_env		/* TEXT 			'액션 환경'   */
+			 , params 			/* TEXT  			'파라미터'    */
+			 , sys_typ			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , user_ip
+			 , action_method
+			 , memo
+		     )
+		VALUES
+		     (
+		       NOW() 			/* DATETIME  		'액션 일시'   */
+		     , #{action_ctg}	/* VARCHAR(10)		'액션 분류'	  */ 
+			 , #{user_id} 		/* VARCHAR(32)  	'사용자 UUID' */
+			 , #{action_url} 	/* VARCHAR(200)  	'액션 URL'    */
+			 , #{action_env}	/* TEXT 			'액션 환경'   */
+			 , #{params} 		/* TEXT  			'파라미터'    */
+			 , 'ADMIN'			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , #{user_ip}
+			 , #{action_method}
+			 , #{memo}
+		     )
+	</insert>
+	
+	<!-- 오류 이력 -->
+	<select id="getErrorLogList" parameterType="kr.devsnote.log.ErrorLogVO" resultType="Hmap">
+		SELECT err_seq			/* BIGINT PK AI 	'오류 일련번호'	*/
+			 , err_dtm 			/* DATETIME  		'오류 일시' 		*/
+			 , err_sts 			/* VARCHAR(10)  	'오류 상태 (코드)' 	*/
+			 , err_cls 			/* VARCHAR(200) 	'오류 발생 클래스' 	*/
+			 , err_msg 			/* VARCHAR(4000)  	'오류 메시지' 		*/
+			 , err_trc 			/* VARCHAR(4000)  	'오류 트레이스' 	*/
+			 , params   		/* TEXT */
+			 , err_env   		/* TEXT  			'오류 환경' 		*/
+			 , user_id 			/* VARCHAR(32)  	'사용자 ID' 		*/
+			 , sys_typ			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+	      FROM tb_sy_error_log tb1
+	     WHERE 1 = 1
+	       <if test='@kr.devsnote.util.CommonUtil@isNotEmpty(srch_dt_from)'>
+	       AND tb1.err_dtm >= DATE_FORMAT(#{srch_dt_from}, '%Y-%m-%d')
+	       </if>
+	  ORDER BY tb1.err_dtm DESC
+	      
+	</select>
+	
+	<insert id="insertErrorLog" parameterType="Hmap">
+		/* log-mapper.xml insertErrorLog */
+		INSERT
+		  INTO tb_sy_error_log 
+		     (
+			   err_dtm 			/* DATETIME  		'오류 일시' 		*/
+			 , err_url			/* '오류 발생 URL' */
+			 , err_sts 			/* VARCHAR(10)  	'오류 상태 (코드)' 	*/
+			 , err_cls 			/* VARCHAR(200) 	'오류 발생 클래스' 	*/
+			 , err_msg 			/* VARCHAR(4000)  	'오류 메시지' 		*/
+			 , err_trc 			/* VARCHAR(4000)  	'오류 트레이스' 	*/
+			 , params   		/* TEXT */
+			 , err_env   		/* TEXT  			'오류 환경' 		*/
+			 , user_id 			/* VARCHAR(32)  	'사용자 ID' 		*/
+			 , sys_typ			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+		     )
+		VALUES
+			 (
+			   NOW() 			/* DATETIME  		'오류 일시' 		*/
+			 , #{err_url}		/* '오류 발생 URL' */
+			 , #{err_sts} 		/* VARCHAR(10)  	'오류 상태 (코드)' 	*/
+			 , #{err_cls} 		/* VARCHAR(200) 	'오류 발생 클래스' 	*/
+			 , #{err_msg} 		/* VARCHAR(4000)  	'오류 메시지' 		*/
+			 , #{err_trc} 		/* VARCHAR(4000)  	'오류 트레이스'	 	*/
+			 , #{params}   		/* TEXT 			'파라미터' 			*/
+			 , #{err_env}   	/* TEXT  			'오류 환경' 		*/
+			 , #{user_id} 		/* VARCHAR(256)  	'사용자 ID' 		*/
+			 , 'ADMIN'  			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 )
+	</insert>
+	
+</mapper>

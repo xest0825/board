@@ -20,6 +20,8 @@ import java.util.Properties;
 /**
  * Query Interceptor
  * @author choiys
+ * @Desc 쿼리를 로그에 남기기 위한 인터셉터
+ *  참고로 인터셉터는 스프링 기술 스택
  */
 @Slf4j
 @Intercepts
@@ -87,11 +89,11 @@ public class QueryInterceptor implements Interceptor
                             Object value = ((Map) param).get(propValue); // 넘겨받은 key 값을 이용해 실제 값을 꺼낸다
                             if (value instanceof String)
                             { // SQL의 ? 대신에 실제 값을 넣는다. 이때 String 일 경우는 '를 붙여야 하기땜에 별도 처리
-                                sql = sql.replaceFirst("\\?", "'" + value + "'");
+                                sql = sql.replaceFirst("\\?", "'" + ((String) value).replaceAll("\\$", "\\\\\\$") + "'");
                             }
                             else
                             {
-                                sql = sql.replaceFirst("\\?", value.toString());
+                                sql = sql.replaceFirst("\\?", (value == null?"'null'":value.toString()));
                             }
 
                         }
