@@ -12,8 +12,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import javax.servlet.http.HttpServletRequest;
@@ -32,12 +30,10 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver  {
 
 	@Autowired
 	private LogService logsService;
-	
 
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex){
 
-		// log.info("doResolveException");
 		StackTraceElement[] st = ex.getStackTrace();
 		StringBuilder sb = new StringBuilder();
 
@@ -45,7 +41,6 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver  {
 		{
 			sb.append(st[i]);
 			sb.append("\n");
-			
 			if (i==4)break;
 		}
 
@@ -55,9 +50,10 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver  {
 		log.error("request.getRequestURI = {}",request.getRequestURI());
 		log.error("response.getStatus() = {}",response.getStatus() );
 		log.error("ex.getClass()        = {}",ex.getClass().toString()        );
-		log.error("ex.getMessage()      = {}",ex.getMessage().toString()      );
+		log.error("ex.getMessage()      = {}",ex.getMessage()      );
 		log.error("ex.toString()        = {}",ex.toString()        );
-		log.error("StackTrace  = {}",sb.toString());
+		log.error("StackTrace  = ");
+		log.error("{}", sb);
 		log.error("##########################");
 		log.error("");
 			
@@ -67,9 +63,8 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver  {
 			Constants.LOGGING QueryLogging = Constants.QueryLogging;
 			// Constants.QueryLogging = Constants.LOGGING.NOLOGGING;
 
-	        // ErrorLogVO errvo = new ErrorLogVO();
 	        HashMap<String, String> errMap = new HashMap<>();
-	        errMap.put("err_url", request.getRequestURI());
+	        errMap.put("err_url", "["+request.getMethod() +"]" + request.getRequestURI());
 	        errMap.put("err_sts", String.valueOf(response.getStatus())); 			/* VARCHAR(10)  	'오류 상태 (코드)' 	*/
 	        errMap.put("err_cls", ex.getClass().toString()); 			/* VARCHAR(200) 	'오류 발생 클래스' 	*/
 	        errMap.put("err_msg", ex.getMessage()); 			/* VARCHAR(4000)  	'오류 메시지' 		*/
@@ -83,25 +78,21 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver  {
 			while (paramsss.hasMoreElements()){
 			    String name = (String)paramsss.nextElement();
 			    params += ( name + "=" + request.getParameter(name) + "&");
-			    System.out.println(name + " : " +request.getParameter(name));
+			    log.debug(name + " : " +request.getParameter(name));
 			}
-			// errvo.setParams(params);
 			errMap.put("params", params);
 			
-			HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-					.getRequest();
-			String ip = req.getHeader("X-FORWARDED-FOR");
-
-			if (ip == null)
-				ip = req.getRemoteAddr();
-			String ua = request.getHeader("User-Agent");
-			 errMap.put("err_env", ua);   		/* TEXT  			'오류 환경' 		*/
+			// HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+			errMap.put("err_env", request.getHeader("User-Agent"));
+			errMap.put("error_ip", CommonUtil.getClientIP(request));
+			errMap.put("system_gubun", "board");
+			errMap.put("action_type", "");
 
 			int i = logsService.insertErrorLog(errMap);
 			Constants.QueryLogging = QueryLogging;
 		
 		} catch (Exception e1) {
-			logger.error(e1.getMessage());
+			log.error(e1.getMessage());
 		}
 		
 		String exmsg = "";
@@ -180,7 +171,7 @@ public class ExceptionHandler extends SimpleMappingExceptionResolver  {
 				CommonUtil.sendjson(response, rtn , 500);
 				return null;
 			} catch (Exception e) {
-				logger.error(exmsg);
+				log.error(exmsg);
 			}
 			
 		 } else {

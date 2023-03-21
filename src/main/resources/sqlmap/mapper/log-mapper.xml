@@ -51,7 +51,7 @@
 			 , #{action_url} 	/* VARCHAR(200)  	'액션 URL'    */
 			 , #{action_env}	/* TEXT 			'액션 환경'   */
 			 , #{params} 		/* TEXT  			'파라미터'    */
-			 , 'ADMIN'			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , IFNULL(#{sys_typ}, 'WEB') /* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
 			 , #{user_ip}
 			 , #{action_method}
 			 , #{memo}
@@ -94,6 +94,9 @@
 			 , err_env   		/* TEXT  			'오류 환경' 		*/
 			 , user_id 			/* VARCHAR(32)  	'사용자 ID' 		*/
 			 , sys_typ			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , action_type
+			 , error_ip
+			 , system_gubun
 		     )
 		VALUES
 			 (
@@ -106,7 +109,10 @@
 			 , #{params}   		/* TEXT 			'파라미터' 			*/
 			 , #{err_env}   	/* TEXT  			'오류 환경' 		*/
 			 , #{user_id} 		/* VARCHAR(256)  	'사용자 ID' 		*/
-			 , 'ADMIN'  			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , IFNULL(#{sys_typ}, 'WEB')  			/* VARCHAR(10)      '시스템유형(MWEB/ADM)' */
+			 , #{action_type}
+			 , #{error_ip}
+			 , #{system_gubun}
 			 )
 	</insert>
 	
